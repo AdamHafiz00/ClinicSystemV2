@@ -7,7 +7,8 @@ package model;
 public class Patient extends Person {
     private String diagnosis;
     private String status; // e.g., "Waiting", "In Treatment"
-
+    private String ic;
+    
     public Patient(int id, String name, int age, String diagnosis, String status) {
         super(id, name, age); // Send name/age to Parent
         this.diagnosis = diagnosis;

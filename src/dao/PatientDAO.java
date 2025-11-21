@@ -104,4 +104,35 @@ public class PatientDAO {
         }
         return list;
     }
+    // File: src/dao/PatientDAO.java
+
+// Method to find a patient by their IC number
+public model.Patient getPatientByIC(String icNumber) {
+    String sql = "SELECT * FROM patients WHERE ic_number = ?";
+    
+    try (java.sql.Connection conn = database.DatabaseConnection.getInstance().getConnection();
+         java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+        
+        stmt.setString(1, icNumber);
+        java.sql.ResultSet rs = stmt.executeQuery();
+        
+        if (rs.next()) {
+            // Re-use your existing patient object instantiation logic here
+            return new model.Patient(
+                rs.getInt("patient_id"), 
+                rs.getString("name"),
+                rs.getInt("age"), 
+                rs.getString("gender"),
+                rs.getString("contact_info"), 
+                rs.getString("diagnosis"), 
+                rs.getString("status")
+            );
+            // Note: You may need to update the model.Patient constructor/fields if 
+            // you want to fully load the IC number into the Java object as well.
+        }
+    } catch (java.sql.SQLException e) {
+        e.printStackTrace();
+    }
+    return null; 
+}
 }

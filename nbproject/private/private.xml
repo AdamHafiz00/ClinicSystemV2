@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/clinicsystemv2/ClinicSystemV2.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/database/DatabaseConnection.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/model/Person.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/model/Doctor.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/model/Patient.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/dao/DoctorDAO.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/dao/PatientDAO.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/dao/AppointmentDAO.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/view/ReceptionForm.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/view/DoctorPortal.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/controller/LoginController.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/dao/UserDAO.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/view/LoginDialog.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/view/MainMenu.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/view/AdminPanel.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/view/RegisterDoctorForm.java</file>
+        </group>
+    </open-files>
+</project-private>
