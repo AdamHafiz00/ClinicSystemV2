@@ -84,19 +84,29 @@ public class LoginDialog extends javax.swing.JFrame {
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         String loginId = txtLoginId.getText().trim();
-        // JPasswordField returns a char array, convert it to String
         String password = new String(txtPassword.getPassword());
 
+        // We'll use the DAO directly here for the Doctor login case to get the Doctor object
+        dao.DoctorDAO docDao = new dao.DoctorDAO();
+        model.Doctor loggedInDoctor = docDao.login(loginId, password);
+
+        // --- DOCTOR LOGIN CHECK ---
+        if (loggedInDoctor != null) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Welcome, Doctor " + loggedInDoctor.getName() + "!");
+
+            // **NEW:** Pass the doctor_id (which is model.Doctor.getId()) to the DoctorPortal
+            new view.DoctorPortal(loggedInDoctor.getId()).setVisible(true);
+            this.dispose();
+            return; // Exit method
+        }
+        // --------------------------
+
+        // --- ADMIN/GENERAL CHECK (if it wasn't a Doctor) ---
         controller.LoginController controller = new controller.LoginController();
         String result = controller.authenticate(loginId, password);
 
-        if (result.equals("Doctor")) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Welcome, Doctor " + loginId + "!");
-            new view.DoctorPortal().setVisible(true); // Launch Doctor Portal
-            this.dispose();
-        } else if (result.equals("Admin")) {
+        if (result.equals("Admin")) {
             javax.swing.JOptionPane.showMessageDialog(this, "Welcome, Admin " + loginId + "!");
-            // We haven't created AdminPanel yet, so we will show a placeholder
             new view.AdminPanel().setVisible(true);
             this.dispose();
         } else {

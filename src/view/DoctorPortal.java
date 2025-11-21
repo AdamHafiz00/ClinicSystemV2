@@ -10,39 +10,36 @@ package view;
  */
 public class DoctorPortal extends javax.swing.JFrame {
 
+    private int loggedInDoctorId; // New field to store the ID
+
     /**
      * Creates new form DoctorPortal
      */
-    public DoctorPortal() {
+    public DoctorPortal(int doctorId) {
         initComponents();
-        loadDoctors(); // Call the helper method
-    }
-    private void loadDoctors() {
-        dao.DoctorDAO dao = new dao.DoctorDAO();
-        for (model.Doctor d : dao.getAllDoctors()) {
-            comboDocSelect.addItem(d);
-        }
+        this.loggedInDoctorId = doctorId; // Store the ID for later use (e.g., updating record)
+        refreshTable(); // Now calls the simpler refreshTable without arguments
     }
 
+// Update the refreshTable method (it no longer needs the doctorId argument)
     private void refreshTable() {
-        // 1. Get the currently selected Doctor
-        model.Doctor selectedDoc = (model.Doctor) comboDocSelect.getSelectedItem();
-        if (selectedDoc == null) return;
+        // 1. The ID is now available via the class field
+        int doctorId = this.loggedInDoctorId;
 
-        // 2. Get their patients from DB
+        // 2. Get their patients from DB using the stored ID
         dao.PatientDAO dao = new dao.PatientDAO();
-        java.util.List<model.Patient> patients = dao.getPatientsByDoctorId(selectedDoc.getId());
+        java.util.List<model.Patient> patients = dao.getPatientsByDoctorId(doctorId);
 
-        // 3. Clear and Fill Table
+        // 3. Clear and Fill Table (The rest remains the same)
         javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblPatients.getModel();
-        model.setRowCount(0); // Clear old rows
+        model.setRowCount(0);
 
         for (model.Patient p : patients) {
             model.addRow(new Object[]{
-                p.getId(), 
-                p.getName(), 
-                p.getAge(), 
-                p.getDiagnosis(), 
+                p.getId(),
+                p.getName(),
+                p.getAge(),
+                p.getDiagnosis(),
                 p.getStatus()
             });
         }
@@ -57,8 +54,6 @@ public class DoctorPortal extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        comboDocSelect = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblPatients = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
@@ -67,14 +62,6 @@ public class DoctorPortal extends javax.swing.JFrame {
         btnUpdate = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        jLabel1.setText("Select Doctor Profile:");
-
-        comboDocSelect.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboDocSelectActionPerformed(evt);
-            }
-        });
 
         tblPatients.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -111,11 +98,7 @@ public class DoctorPortal extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(31, 31, 31)
-                        .addComponent(comboDocSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(195, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -125,11 +108,7 @@ public class DoctorPortal extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(34, 34, 34)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(comboDocSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
-                .addGap(29, 29, 29)
+                .addGap(85, 85, 85)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2)
@@ -142,10 +121,6 @@ public class DoctorPortal extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void comboDocSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboDocSelectActionPerformed
-        refreshTable(); // Reload table whenever the doctor changes!
-    }//GEN-LAST:event_comboDocSelectActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // 1. Check if a row is selected
@@ -166,7 +141,7 @@ public class DoctorPortal extends javax.swing.JFrame {
             dao.updateDiagnosis(patientId, newDiagnosis);
 
             javax.swing.JOptionPane.showMessageDialog(this, "Record Updated!");
-            
+
             // 4. Refresh to show changes
             refreshTable();
             txtDiagnosis.setText(""); // Clear box
@@ -179,7 +154,7 @@ public class DoctorPortal extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) { //direct testing only, later when we finalize the program we need to delete this main
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -206,20 +181,17 @@ public class DoctorPortal extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new DoctorPortal().setVisible(true);
+                new DoctorPortal(5).setVisible(true); // '1' for testing
                 
             }
-            
+
         }
-                
         );
-        
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnUpdate;
-    private javax.swing.JComboBox<model.Doctor> comboDocSelect;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
