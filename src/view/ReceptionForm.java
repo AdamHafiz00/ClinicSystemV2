@@ -43,8 +43,11 @@ public class ReceptionForm extends javax.swing.JFrame {
         txtName = new javax.swing.JTextField();
         txtAge = new javax.swing.JTextField();
         comboDoctor = new javax.swing.JComboBox<>();
-        comboTime = new javax.swing.JComboBox<>();
+        comboTimeSlot = new javax.swing.JComboBox<>();
         btnBook = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        txtICNumber = new javax.swing.JTextField();
+        txtAppointmentDate = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -63,12 +66,27 @@ public class ReceptionForm extends javax.swing.JFrame {
             }
         });
 
-        comboTime.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "09:00-10:00", "10:00-11:00", "11:00-12:00" }));
+        comboTimeSlot.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "09:00-10:00", "10:00-11:00", "11:00-12:00" }));
 
         btnBook.setText("Book Appointment");
         btnBook.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnBookActionPerformed(evt);
+            }
+        });
+
+        jLabel5.setText("IC Number (Unique):");
+
+        txtICNumber.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtICNumberFocusLost(evt);
+            }
+        });
+
+        txtAppointmentDate.setText("YYYY-MM-DD");
+        txtAppointmentDate.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtAppointmentDateFocusLost(evt);
             }
         });
 
@@ -83,26 +101,34 @@ public class ReceptionForm extends javax.swing.JFrame {
                         .addComponent(btnBook)
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel5)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel1)
+                                    .addComponent(jLabel2))
+                                .addGap(12, 12, 12)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel3)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(comboDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(jLabel4)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(comboTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addComponent(jLabel3)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(comboDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addComponent(comboTimeSlot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGap(251, 251, 251))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(txtAppointmentDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(txtName, javax.swing.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)
+                                        .addComponent(txtICNumber)))
                                 .addGap(200, 200, 200))))))
         );
         layout.setVerticalGroup(
@@ -116,17 +142,23 @@ public class ReceptionForm extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(21, 21, 21)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(txtICNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtAppointmentDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(5, 5, 5)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(comboDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4)
-                    .addComponent(comboTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(comboTimeSlot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(28, 28, 28)
                 .addComponent(btnBook)
-                .addContainerGap(89, Short.MAX_VALUE))
+                .addContainerGap(64, Short.MAX_VALUE))
         );
 
         pack();
@@ -140,37 +172,125 @@ public class ReceptionForm extends javax.swing.JFrame {
        try {
             // 1. Get Data from Form
             String name = txtName.getText();
+            String icNumber = txtICNumber.getText().trim(); // <--- GET IC HERE
+            String dateText = txtAppointmentDate.getText().trim(); // <--- GET DATE HERE
+            
+            // Validate inputs
+            if(name.isEmpty() || icNumber.isEmpty() || dateText.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Please fill all fields!");
+                return;
+            }
+            
+            // Parse Age
             int age = Integer.parseInt(txtAge.getText());
             
-            // Get the selected Doctor object
+            // Get the selected Doctor object and Time Slot
             model.Doctor selectedDoc = (model.Doctor) comboDoctor.getSelectedItem();
-            String timeSlot = comboTime.getSelectedItem().toString();
+            String timeSlot = comboTimeSlot.getSelectedItem().toString();
             
-            // 2. Save Patient First (We need their new ID)
-            model.Patient newPatient = new model.Patient(0, name, age, "Checkup", "Waiting");
+            // 2. Save Patient First
+            // We need to check if the patient already exists to avoid duplicates
             dao.PatientDAO patientDao = new dao.PatientDAO();
-            int newId = patientDao.addPatient(newPatient);
+            model.Patient existing = patientDao.getPatientByIC(icNumber);
             
-            if (newId != -1) {
-                // 3. Save Appointment using that ID
+            int patientId;
+            
+            if (existing != null) {
+                // If patient exists, use their existing ID
+                patientId = existing.getId();
+            } else {
+                // If new patient, create them (MAKE SURE PatientDAO handles IC Number!)
+                // Note: You might need to update your Patient Model constructor to accept IC
+                model.Patient newPatient = new model.Patient(0, name, age, icNumber, "Checkup", "Waiting");
+                // You need to update your PatientDAO.addPatient method to save the IC number too!
+                patientId = patientDao.addPatient(newPatient); 
+            }
+            
+            if (patientId != -1) {
+                // 3. Save Appointment using the variables (NOT hardcoded strings)
                 dao.AppointmentDAO apptDao = new dao.AppointmentDAO();
-                // Assuming today's date for simplicity
-                apptDao.bookAppointment(newId, selectedDoc.getId(), "2025-12-01", timeSlot);
                 
-                javax.swing.JOptionPane.showMessageDialog(this, "Success! Patient ID: " + newId);
+                // FIX: Use 'dateText' instead of "2025-12-01"
+                apptDao.bookAppointment(patientId, selectedDoc.getId(), dateText, timeSlot);
+                
+                javax.swing.JOptionPane.showMessageDialog(this, "Success! Appointment Booked.");
                 
                 // Clear fields
                 txtName.setText("");
                 txtAge.setText("");
+                txtICNumber.setText("");
+                txtName.setEnabled(true);
+                txtAge.setEnabled(true);
             } else {
                 javax.swing.JOptionPane.showMessageDialog(this, "Error saving patient.");
             }
             
+        } catch (NumberFormatException e) {
+             javax.swing.JOptionPane.showMessageDialog(this, "Age must be a number.");
         } catch (Exception e) {
              javax.swing.JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+             e.printStackTrace();
         }
     }//GEN-LAST:event_btnBookActionPerformed
 
+    private void txtICNumberFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtICNumberFocusLost
+    String ic = txtICNumber.getText().trim();
+        if (ic.isEmpty()) return; // Don't check if empty
+
+    dao.PatientDAO dao = new dao.PatientDAO();
+    model.Patient p = dao.getPatientByIC(ic); // Call Phase 2 method
+
+    if (p != null) {
+        // Found! Auto-fill fields
+        javax.swing.JOptionPane.showMessageDialog(this, "Patient Found: " + p.getName());
+        txtName.setText(p.getName());
+        txtAge.setText(String.valueOf(p.getAge()));
+        
+        // Lock fields so staff don't accidentally change them
+        txtName.setEnabled(false);
+        txtAge.setEnabled(false);
+    } else {
+        // Not found? Clear fields for new entry
+        txtName.setEnabled(true);
+        txtAge.setEnabled(true);
+    }
+    }//GEN-LAST:event_txtICNumberFocusLost
+
+    private void txtAppointmentDateFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtAppointmentDateFocusLost
+        updateAvailableSlots();
+    }//GEN-LAST:event_txtAppointmentDateFocusLost
+// Define your clinic hours here
+private final String[] ALL_SLOTS = {"09:00-10:00", "10:00-11:00", "11:00-12:00", "14:00-15:00", "15:00-16:00"};
+
+private void updateAvailableSlots() {
+    try {
+        // 1. Check if Doctor and Date are filled
+        if (comboDoctor.getSelectedItem() == null || txtAppointmentDate.getText().isEmpty()) {
+            return;
+        }
+
+        // 2. Get inputs
+        model.Doctor selectedDoc = (model.Doctor) comboDoctor.getSelectedItem();
+        String dateText = txtAppointmentDate.getText().trim();
+
+        // 3. Get BUSY slots from DB (Call Phase 3 method)
+        dao.AppointmentDAO dao = new dao.AppointmentDAO();
+        java.util.Set<String> busySlots = dao.getBookedTimeSlots(selectedDoc.getId(), dateText);
+
+        // 4. Reset and Fill Dropdown
+        comboTimeSlot.removeAllItems();
+        
+        for (String slot : ALL_SLOTS) {
+            if (!busySlots.contains(slot)) {
+                // Only add the slot if it is NOT in the busy list
+                comboTimeSlot.addItem(slot);
+            }
+        }
+        
+    } catch (Exception e) {
+        // If date format is wrong, just ignore for now
+    }
+}
     /**
      * @param args the command line arguments
      */
@@ -209,12 +329,15 @@ public class ReceptionForm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBook;
     private javax.swing.JComboBox<model.Doctor> comboDoctor;
-    private javax.swing.JComboBox<String> comboTime;
+    private javax.swing.JComboBox<String> comboTimeSlot;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JTextField txtAge;
+    private javax.swing.JTextField txtAppointmentDate;
+    private javax.swing.JTextField txtICNumber;
     private javax.swing.JTextField txtName;
     // End of variables declaration//GEN-END:variables
 }
