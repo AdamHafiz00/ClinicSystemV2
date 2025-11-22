@@ -15,7 +15,7 @@ public class PatientDAO {
     // 1. ADD Method: Saves a new patient and returns their new Database ID.
     // We need the ID back so we can link an Appointment to it immediately!
     public int addPatient(Patient p) {
-        String sql = "INSERT INTO patients (name, age, ic_number, diagnosis, status) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO patients (name, age, ic_number, diagnosis, status) VALUES (?, ?, ?, ?, ?)";
 
         // 'RETURN_GENERATED_KEYS' is the magic flag to get the ID back
         try (Connection conn = DatabaseConnection.getInstance().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -23,8 +23,8 @@ public class PatientDAO {
             stmt.setString(1, p.getName());
             stmt.setInt(2, p.getAge());
             stmt.setString(3,"IC-" + p.getIcNumber());
-            stmt.setString(3, p.getDiagnosis()); // Usually "Checkup" initially
-            stmt.setString(4, p.getStatus());    // "Waiting"
+            stmt.setString(4, p.getDiagnosis()); // Usually "Checkup" initially
+            stmt.setString(5, p.getStatus());    // "Waiting"
 
             stmt.executeUpdate();
 
