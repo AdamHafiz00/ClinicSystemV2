@@ -14,30 +14,35 @@ public class PatientDAO {
 
     // 1. ADD Method: Saves a new patient and returns their new Database ID.
     // We need the ID back so we can link an Appointment to it immediately!
-    public int addPatient(Patient p) {
+    public int addPatient(model.Patient p) {
+        // FIX: Add ic_number to the SQL
         String sql = "INSERT INTO patients (name, age, ic_number, diagnosis, status) VALUES (?, ?, ?, ?, ?)";
 
-        // 'RETURN_GENERATED_KEYS' is the magic flag to get the ID back
-        try (Connection conn = DatabaseConnection.getInstance().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (java.sql.Connection conn = database.DatabaseConnection.getInstance().getConnection(); java.sql.PreparedStatement stmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, p.getName());
             stmt.setInt(2, p.getAge());
-            stmt.setString(3,"IC-" + p.getIcNumber());
-            stmt.setString(4, p.getDiagnosis()); // Usually "Checkup" initially
-            stmt.setString(5, p.getStatus());    // "Waiting"
+            stmt.setString(3, p.getGender());
+            stmt.setString(4, p.getContactInfo());
+            stmt.setString(5, p.getIcNumber());
+            stmt.setString(6, p.getDiagnosis());
+            stmt.setString(7, p.getStatus());
 
             stmt.executeUpdate();
 
-            // Get the ID created by Auto-Increment
-            ResultSet rs = stmt.getGeneratedKeys();
+            java.sql.ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
-                return rs.getInt(1); // Success: Return the new ID (e.g., 5)
+                return rs.getInt(1); // Success
             }
-        } catch (SQLException e) {
+        } catch (java.sql.SQLException e) {
+            // This will print the error if it's a Duplicate Entry
             e.printStackTrace();
         }
         return -1; // Failure
     }
+    
+    
+
 
     // 2. UPDATE Method: Used by the Doctor Portal to change the diagnosis
     public void updateDiagnosis(int patientId, String newDiagnosis) {
@@ -66,6 +71,8 @@ public class PatientDAO {
                         rs.getInt("patient_id"),
                         rs.getString("name"),
                         rs.getInt("age"),
+                        rs.getString("gender"),
+                        rs.getString("contact_info"),
                         rs.getString("ic_number"),
                         rs.getString("diagnosis"),
                         rs.getString("status")
@@ -97,6 +104,8 @@ public class PatientDAO {
                         rs.getInt("patient_id"),
                         rs.getString("name"),
                         rs.getInt("age"),
+                        rs.getString("gender"),
+                        rs.getString("contact_info"),
                         rs.getString("ic_number"),
                         rs.getString("diagnosis"),
                         rs.getString("status")
@@ -110,31 +119,32 @@ public class PatientDAO {
     // File: src/dao/PatientDAO.java
 
 // Method to find a patient by their IC number
-public model.Patient getPatientByIC(String icNumber) {
-    // Select all columns where ic_number matches
-    String sql = "SELECT * FROM patients WHERE ic_number = ?";
-    
-    try (java.sql.Connection conn = database.DatabaseConnection.getInstance().getConnection();
-         java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
-        
-        stmt.setString(1, icNumber);
-        java.sql.ResultSet rs = stmt.executeQuery();
-        
-        if (rs.next()) {
-            // If found, create and return the Patient object
-            // NOTE: Adjust the constructor arguments below to match your exact Patient.java class!
-            return new model.Patient(
-                rs.getInt("patient_id"), 
-                rs.getString("name"),
-                rs.getInt("age"), 
-                rs.getString("ic_number"),
-                rs.getString("diagnosis"), // Assuming you have this
-                rs.getString("status")     // Assuming you have this
-            );
+    public model.Patient getPatientByIC(String icNumber) {
+        // Select all columns where ic_number matches
+        String sql = "SELECT * FROM patients WHERE ic_number = ?";
+
+        try (java.sql.Connection conn = database.DatabaseConnection.getInstance().getConnection(); java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, icNumber);
+            java.sql.ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                // If found, create and return the Patient object
+                // NOTE: Adjust the constructor arguments below to match your exact Patient.java class!
+                return new model.Patient(
+                        rs.getInt("patient_id"),
+                        rs.getString("name"),
+                        rs.getInt("age"),
+                        rs.getString("gender"),
+                        rs.getString("contact_info"),
+                        rs.getString("ic_number"),
+                        rs.getString("diagnosis"),
+                        rs.getString("status") 
+                );
+            }
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
         }
-    } catch (java.sql.SQLException e) {
-        e.printStackTrace();
+        return null; // Return null if no patient found
     }
-    return null; // Return null if no patient found
-}
 }

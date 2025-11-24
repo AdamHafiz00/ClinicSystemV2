@@ -23,10 +23,13 @@ public class DoctorDAO {
             while (rs.next()) {
                 int id = rs.getInt("doctor_id");
                 String name = rs.getString("name");
+                int age = rs.getInt("age");
+                String gender = rs.getString("gender");
+                String contact_info = rs.getString("contact_info");
                 String specialization = rs.getString("specialization");
 
                 // Create a Doctor object and add to list
-                list.add(new Doctor(id, name, specialization));
+                list.add(new Doctor(id, name, age, gender, contact_info, specialization));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -48,6 +51,9 @@ public class DoctorDAO {
                 return new model.Doctor(
                         rs.getInt("doctor_id"),
                         rs.getString("name"),
+                        rs.getInt("age"),
+                        rs.getString("gender"),
+                        rs.getString("contact_info"),
                         rs.getString("specialization")
                 );
             }
@@ -57,48 +63,52 @@ public class DoctorDAO {
         }
         return null;
     }
-    
-public void addDoctorWithCredentials(String name, String specialization, String password) throws java.sql.SQLException {
-    java.sql.Connection conn = null;
-    java.sql.PreparedStatement stmt = null;
-    java.sql.ResultSet rs = null;
 
-    try {
-        conn = database.DatabaseConnection.getInstance().getConnection();
-        
-        // 1. Insert the new doctor without the Login ID yet (since it depends on the auto-generated ID)
-        String insertSql = "INSERT INTO doctors (name, specialization, password, is_available) VALUES (?, ?, ?, ?)";
-        stmt = conn.prepareStatement(insertSql, java.sql.Statement.RETURN_GENERATED_KEYS);
-        
-        stmt.setString(1, name);
-        stmt.setString(2, specialization);
-        stmt.setString(3, password);
-        stmt.setBoolean(4, true); 
-        
-        stmt.executeUpdate();
-        
-        // 2. Get the new doctor_id (e.g., 4)
-        int newDoctorId = -1;
-        rs = stmt.getGeneratedKeys();
-        if (rs.next()) {
-            newDoctorId = rs.getInt(1);
+    public void addDoctorWithCredentials(String name, String specialization, String password) throws java.sql.SQLException {
+        java.sql.Connection conn = null;
+        java.sql.PreparedStatement stmt = null;
+        java.sql.ResultSet rs = null;
+
+        try {
+            conn = database.DatabaseConnection.getInstance().getConnection();
+
+            // 1. Insert the new doctor without the Login ID yet (since it depends on the auto-generated ID)
+            String insertSql = "INSERT INTO doctors (name, specialization, password, is_available) VALUES (?, ?, ?, ?)";
+            stmt = conn.prepareStatement(insertSql, java.sql.Statement.RETURN_GENERATED_KEYS);
+
+            stmt.setString(1, name);
+            stmt.setString(2, specialization);
+            stmt.setString(3, password);
+            stmt.setBoolean(4, true);
+
+            stmt.executeUpdate();
+
+            // 2. Get the new doctor_id (e.g., 4)
+            int newDoctorId = -1;
+            rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                newDoctorId = rs.getInt(1);
+            }
+
+            // 3. Generate the Login ID (e.g., D004)
+            String newLoginId = "D" + String.format("%03d", newDoctorId);
+
+            // 4. Update the record with the generated Login ID
+            String updateSql = "UPDATE doctors SET login_id = ? WHERE doctor_id = ?";
+            stmt = conn.prepareStatement(updateSql);
+            stmt.setString(1, newLoginId);
+            stmt.setInt(2, newDoctorId);
+            stmt.executeUpdate();
+
+        } finally {
+            // IMPORTANT: Close resources to prevent leaks (conn is handled by Singleton, but stmt/rs need closing)
+            if (rs != null) {
+                rs.close();
+            }
+            if (stmt != null) {
+                stmt.close();
+            }
+            // NOTE: We rely on the Singleton to manage the single Connection lifecycle, so no conn.close() here.
         }
-        
-        // 3. Generate the Login ID (e.g., D004)
-        String newLoginId = "D" + String.format("%03d", newDoctorId);
-        
-        // 4. Update the record with the generated Login ID
-        String updateSql = "UPDATE doctors SET login_id = ? WHERE doctor_id = ?";
-        stmt = conn.prepareStatement(updateSql);
-        stmt.setString(1, newLoginId);
-        stmt.setInt(2, newDoctorId);
-        stmt.executeUpdate();
-        
-    } finally {
-        // IMPORTANT: Close resources to prevent leaks (conn is handled by Singleton, but stmt/rs need closing)
-        if (rs != null) rs.close();
-        if (stmt != null) stmt.close();
-        // NOTE: We rely on the Singleton to manage the single Connection lifecycle, so no conn.close() here.
     }
-}
 }

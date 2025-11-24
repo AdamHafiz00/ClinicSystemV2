@@ -1,23 +1,26 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
 public abstract class Person {
-    // "protected" means child classes (Doctor/Patient) can use these
-    protected int id; 
-    protected String name;
-    protected int age;
+    
+    private int id; 
+    private String name;
+    private int age;
+    private String gender;
+    private String contact_info;
 
-    public Person(int id, String name, int age) {
+    // 2. The Constructor passes data to these private fields
+    public Person(int id, String name, int age, String gender, String contact_info) {
         this.id = id;
         this.name = name;
         this.age = age;
+        this.gender = gender;
+        this.contact_info = contact_info;
     }
 
-    // Getters (Right-click -> Insert Code -> Getters in NetBeans to generate these automatically)
+    // 3. Child classes MUST use these methods to access the data
     public int getId() { return id; }
     public String getName() { return name; }
     public int getAge() { return age; }
+    public String getGender(){ return gender; }
+    public String getContactInfo(){ return contact_info; } // Fixed naming convention
 }

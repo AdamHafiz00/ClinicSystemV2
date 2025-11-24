@@ -5,21 +5,21 @@
 package model;
 
 public class Patient extends Person {
+    private String icNumber; // <--- NEW FIELD
     private String diagnosis;
-    private String status; // e.g., "Waiting", "In Treatment"
-    private String ic_number;
-    
-    
-    public Patient(int id, String name, int age,String ic_number, String diagnosis, String status) {
-        super(id, name, age); // Send name/age to Parent
+    private String status;
+
+    // UPDATED CONSTRUCTOR (Now accepts icNumber)
+    public Patient(int id, String name, int age, String gender, String contact_info, String icNumber, String diagnosis, String status) {
+        super(id, name, age,gender,contact_info);
+        this.icNumber = icNumber;
         this.diagnosis = diagnosis;
         this.status = status;
-        this.ic_number = ic_number;
     }
 
+    // Getters
+    public String getIcNumber() { return icNumber; }
     public String getDiagnosis() { return diagnosis; }
     public String getStatus() { return status; }
-    public String getIcNumber(){
-        return ic_number;
-    }
 }
+//public Person(int id, String name, int age, String gender, String contact_info) {
