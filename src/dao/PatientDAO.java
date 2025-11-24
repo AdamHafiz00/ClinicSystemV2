@@ -10,13 +10,14 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class PatientDAO {
 
     // 1. ADD Method: Saves a new patient and returns their new Database ID.
     // We need the ID back so we can link an Appointment to it immediately!
     public int addPatient(model.Patient p) {
         // FIX: Add ic_number to the SQL
-        String sql = "INSERT INTO patients (name, age, ic_number, diagnosis, status) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO patients (name, age, gender, contact_info, ic_number, diagnosis, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (java.sql.Connection conn = database.DatabaseConnection.getInstance().getConnection(); java.sql.PreparedStatement stmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
 
@@ -40,9 +41,6 @@ public class PatientDAO {
         }
         return -1; // Failure
     }
-    
-    
-
 
     // 2. UPDATE Method: Used by the Doctor Portal to change the diagnosis
     public void updateDiagnosis(int patientId, String newDiagnosis) {
@@ -139,12 +137,43 @@ public class PatientDAO {
                         rs.getString("contact_info"),
                         rs.getString("ic_number"),
                         rs.getString("diagnosis"),
-                        rs.getString("status") 
+                        rs.getString("status")
                 );
             }
         } catch (java.sql.SQLException e) {
             e.printStackTrace();
         }
         return null; // Return null if no patient found
+    }
+    /**
+     * Counts the total number of patients with a specific status 
+     * (e.g., "Waiting", "In-treatment", "Complete").
+     * * @param status The patient status string to filter by.
+     * @return The count of patients matching the status, or 0 if an error occurs.
+     */
+    public int countPatientsByStatus(String status) {
+        int count = 0;
+        
+        // SQL to count rows where the status column matches the provided status string
+        String sql = "SELECT COUNT(*) AS count FROM patients WHERE status = ?";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, status);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Retrieve the count from the column alias 'count'
+                    count = rs.getInt("count");
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error counting patients by status '" + status + "':");
+            e.printStackTrace();
+            // Return 0 on error
+        }
+        return count;
     }
 }

@@ -4,11 +4,17 @@
  */
 package view;
 
+import controller.AdminController;
+import model.Doctor;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Adam
  */
 public class RegisterDoctorForm extends javax.swing.JFrame {
+
+    private final AdminController controller = new AdminController();
 
     /**
      * Creates new form RegisterDoctorForm
@@ -124,7 +130,7 @@ public class RegisterDoctorForm extends javax.swing.JFrame {
             javax.swing.JOptionPane.showMessageDialog(this,
                     "Doctor registered successfully! Login ID generated automatically.",
                     "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-            
+
             txtName.setText("");
             txtSpecialization.setText("");
             txtPassword.setText("");

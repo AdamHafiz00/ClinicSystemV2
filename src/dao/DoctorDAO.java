@@ -9,6 +9,8 @@ import model.Doctor;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DoctorDAO {
 
@@ -111,4 +113,71 @@ public class DoctorDAO {
             // NOTE: We rely on the Singleton to manage the single Connection lifecycle, so no conn.close() here.
         }
     }
+
+    public Set<String> getBookedTimeSlots(int doctorId, String dateText) {
+        Set<String> busySlots = new HashSet<>();
+        // Note: The DATE formatting might need adjustment based on your specific database (e.g., MySQL vs. PostgreSQL)
+        String sql = "SELECT time_slot FROM appointments WHERE doctor_id = ? AND appointment_date = ? AND status = 'Booked'";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, doctorId);
+            stmt.setString(2, dateText);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    busySlots.add(rs.getString("time_slot"));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving booked slots:");
+            e.printStackTrace();
+        }
+        return busySlots;
+    }
+    
+    /**
+     * Adds a new Doctor record to the database.
+     * Assumes the 'doctors' table columns are:
+     * doctor_id (PK), name, age, gender, contact_info, specialization.
+     * * @param doctor The Doctor object containing the data to save.
+     * @return The auto-generated ID of the new doctor, or -1 if the insertion fails.
+     */
+    public int addDoctor(Doctor doctor) {
+        int doctorId = -1;
+        
+        // SQL query to insert doctor details. Note: You must ensure your 'doctors' table 
+        // includes columns for all inherited fields (name, age, gender, contact_info).
+        String sql = "INSERT INTO doctors (name, age, gender, contact_info, specialization) VALUES (?, ?, ?, ?, ?)";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             // Use RETURN_GENERATED_KEYS to get the new doctor_id
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            
+            // Set parameters based on the Doctor model (which inherits from Person)
+            stmt.setString(1, doctor.getName());
+            stmt.setInt(2, doctor.getAge());
+            stmt.setString(3, doctor.getGender());
+            stmt.setString(4, doctor.getContactInfo());
+            stmt.setString(5, doctor.getSpecialization());
+
+            int rowsAffected = stmt.executeUpdate();
+            
+            if (rowsAffected > 0) {
+                // Retrieve the auto-generated doctor_id
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        doctorId = rs.getInt(1);
+                        System.out.println("New Doctor added with ID: " + doctorId);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error adding new doctor:");
+            e.printStackTrace();
+        }
+        return doctorId;
+    }
+
+
 }

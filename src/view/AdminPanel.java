@@ -4,11 +4,15 @@
  */
 package view;
 
+import controller.AdminController;
+
 /**
  *
  * @author Adam
  */
 public class AdminPanel extends javax.swing.JFrame {
+
+    private final AdminController controller = new AdminController();
 
     /**
      * Creates new form AdminPanel
@@ -16,6 +20,7 @@ public class AdminPanel extends javax.swing.JFrame {
     public AdminPanel() {
         initComponents();
         loadDoctors();
+        updateDashboardStats();
     }
 
     // Helper method to refresh the table with current doctor data
@@ -38,6 +43,29 @@ public class AdminPanel extends javax.swing.JFrame {
         }
     }
 
+    private void updateDashboardStats() {
+        try {
+            // 1. Get stats from the Controller
+            java.util.Map<String, Integer> stats = controller.getDashboardStatistics();
+
+            // 2. Update the JLabels (You may need to change the label names below to match your design)
+            // Example Labels based on your controller keys:
+            if (stats.containsKey("Waiting")) {
+                lblWaitingCount.setText("Waiting : " + String.valueOf(stats.get("Waiting")));
+            }
+            if (stats.containsKey("In-treatment")) {
+                lblInTreatmentCount.setText("In-Treatment : " + String.valueOf(stats.get("In-treatment")));
+            }
+            if (stats.containsKey("Complete")) {
+                lblCompleteCount.setText("Completed :" + String.valueOf(stats.get("Complete")));
+            }
+
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error loading dashboard statistics: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -49,6 +77,9 @@ public class AdminPanel extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         tblDoctors = new javax.swing.JTable();
+        lblWaitingCount = new javax.swing.JLabel();
+        lblInTreatmentCount = new javax.swing.JLabel();
+        lblCompleteCount = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         menuRegisterDoctor = new javax.swing.JMenuItem();
@@ -67,6 +98,18 @@ public class AdminPanel extends javax.swing.JFrame {
             }
         ));
         jScrollPane1.setViewportView(tblDoctors);
+
+        lblWaitingCount.setFont(new java.awt.Font("Georgia", 1, 18)); // NOI18N
+        lblWaitingCount.setText("a");
+
+        lblInTreatmentCount.setFont(new java.awt.Font("Georgia", 1, 18)); // NOI18N
+        lblInTreatmentCount.setForeground(new java.awt.Color(0, 204, 0));
+        lblInTreatmentCount.setText("a");
+        lblInTreatmentCount.setToolTipText("");
+
+        lblCompleteCount.setFont(new java.awt.Font("Georgia", 1, 18)); // NOI18N
+        lblCompleteCount.setForeground(new java.awt.Color(0, 153, 255));
+        lblCompleteCount.setText("a");
 
         jMenu1.setText("Action");
 
@@ -87,16 +130,29 @@ public class AdminPanel extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(25, 25, 25)
+                .addGap(41, 41, 41)
+                .addComponent(lblWaitingCount)
+                .addGap(136, 136, 136)
+                .addComponent(lblInTreatmentCount)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblCompleteCount)
+                .addGap(62, 62, 62))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(147, 147, 147)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(37, Short.MAX_VALUE))
+                .addContainerGap(193, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(56, 56, 56)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblWaitingCount)
+                    .addComponent(lblInTreatmentCount)
+                    .addComponent(lblCompleteCount))
+                .addGap(150, 150, 150)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(79, Short.MAX_VALUE))
+                .addContainerGap(150, Short.MAX_VALUE))
         );
 
         pack();
@@ -148,6 +204,9 @@ public class AdminPanel extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblCompleteCount;
+    private javax.swing.JLabel lblInTreatmentCount;
+    private javax.swing.JLabel lblWaitingCount;
     private javax.swing.JMenuItem menuRegisterDoctor;
     private javax.swing.JTable tblDoctors;
     // End of variables declaration//GEN-END:variables

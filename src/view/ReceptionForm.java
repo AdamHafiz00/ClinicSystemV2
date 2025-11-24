@@ -8,7 +8,11 @@ package view;
  *
  * @author Adam
  */
+import controller.ReceptionistController;
+
 public class ReceptionForm extends javax.swing.JFrame {
+
+    private final ReceptionistController controller = new ReceptionistController();
 
     /**
      * Creates new form ReceptionForm
@@ -20,11 +24,12 @@ public class ReceptionForm extends javax.swing.JFrame {
 
     // Helper method to fill the dropdown
     private void loadDoctors() {
-        dao.DoctorDAO docDao = new dao.DoctorDAO();
-        java.util.List<model.Doctor> doctors = docDao.getAllDoctors();
+        // Replace previous DAO calls with controller call
+        java.util.List<model.Doctor> doctors = controller.loadDoctorsForAppointment();
 
+        comboDoctor.removeAllItems(); // Recommended to clear before adding
         for (model.Doctor d : doctors) {
-            comboDoctor.addItem(d); // Adds the Doctor object to the box
+            comboDoctor.addItem(d);
         }
     }
 
@@ -186,73 +191,66 @@ public class ReceptionForm extends javax.swing.JFrame {
     }//GEN-LAST:event_txtNameActionPerformed
 
     private void btnBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBookActionPerformed
-        try {
-            // 1. Get Data from Form
-            String name = txtName.getText();
-            String age = txtAge.getText();
-            String gender = cbGender.getSelectedItem().toString();
-            String contact_info = txtContact_info.getText();
+       try {
+        // 1. Get Data from Form (The View's job)
+        String name = txtName.getText();
+        String age = txtAge.getText();
+        String gender = cbGender.getSelectedItem().toString();
+        String contact_info = txtContact_info.getText();
+        String icNumber = txtICNumber.getText().trim();
+        String dateText = txtAppointmentDate.getText().trim(); // New required field
 
-            String icNumber = txtICNumber.getText().trim();
-            String dateText = txtAppointmentDate.getText().trim();
-
-            // Validate inputs
-            if (name.isEmpty() || age.isEmpty() || contact_info.isEmpty() || icNumber.isEmpty() || dateText.isEmpty()) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Please fill all fields!");
-                return;
-            }
-            int parsed_age = Integer.parseInt(age);
-
-            // Get the selected Doctor object and Time Slot
-            model.Doctor selectedDoc = (model.Doctor) comboDoctor.getSelectedItem();
-            String timeSlot = comboTimeSlot.getSelectedItem().toString();
-
-            // 2. Check Database for Existing Patient
-            dao.PatientDAO patientDao = new dao.PatientDAO();
-            model.Patient existing = patientDao.getPatientByIC(icNumber);
-
-            int patientId;
-
-            if (existing != null) {
-                // CASE A: Patient found in DB -> Use their ID
-                System.out.println("Patient found: ID " + existing.getId()); // Debug print
-                patientId = existing.getId();
-            } else {
-                // CASE B: New Patient (or lookup failed) -> Create New
-                System.out.println("Patient not found, creating new..."); // Debug print
-
-                // --- FIX IS HERE: PASS 'icNumber' TO THE CONSTRUCTOR ---
-                // Ensure your Patient.java (Model) constructor accepts these arguments!
-                model.Patient newPatient = new model.Patient(0, name, parsed_age, gender, contact_info, icNumber, "Checkup", "Waiting");
-
-                patientId = patientDao.addPatient(newPatient);
-            }
-
-            // 3. Check result
-            if (patientId != -1) {
-                // Save Appointment
-                dao.AppointmentDAO apptDao = new dao.AppointmentDAO();
-                apptDao.bookAppointment(patientId, selectedDoc.getId(), dateText, timeSlot);
-
-                javax.swing.JOptionPane.showMessageDialog(this, "Success! Appointment Booked.");
-
-                // Clear fields
-                txtName.setText("");
-                txtAge.setText("");
-                txtICNumber.setText("");
-                txtName.setEnabled(true);
-                txtAge.setEnabled(true);
-            } else {
-                // If we get here, the DB rejected the INSERT (likely duplicate IC or missing data)
-                javax.swing.JOptionPane.showMessageDialog(this, "Error saving patient. (Check if IC is unique or DB connection)");
-            }
-
-        } catch (NumberFormatException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Age must be a number.");
-        } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
-            e.printStackTrace();
+        if (name.isEmpty() || age.isEmpty() || contact_info.isEmpty() || icNumber.isEmpty() || dateText.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Please fill all fields!");
+            return;
         }
+        int parsed_age = Integer.parseInt(age);
+
+        model.Doctor selectedDoc = (model.Doctor) comboDoctor.getSelectedItem();
+        String timeSlot = comboTimeSlot.getSelectedItem().toString();
+
+        if (selectedDoc == null) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Please select a Doctor.");
+            return;
+        }
+
+        // 2. Pass all data to the Controller (The Controller's job)
+        boolean success = controller.bookAppointment(
+            icNumber, 
+            name, 
+            parsed_age, 
+            gender, 
+            contact_info, 
+            "Checkup", // Assuming a default diagnosis for quick booking
+            selectedDoc, 
+            dateText, 
+            timeSlot
+        );
+
+        // 3. Handle the result (The View's job)
+        if (success) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Success! Appointment Booked.");
+
+            // Clear fields
+            txtName.setText("");
+            txtAge.setText("");
+            txtICNumber.setText("");
+            txtContact_info.setText("");
+            txtName.setEnabled(true);
+            txtAge.setEnabled(true);
+            txtContact_info.setEnabled(true);
+            cbGender.setEnabled(true);
+
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error saving patient/appointment. Check IC uniqueness or DB connection.");
+        }
+
+    } catch (NumberFormatException e) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Age must be a valid number.");
+    } catch (Exception e) {
+        javax.swing.JOptionPane.showMessageDialog(this, "A general error occurred: " + e.getMessage());
+        e.printStackTrace();
+    }
     }//GEN-LAST:event_btnBookActionPerformed
 
     private void txtICNumberFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtICNumberFocusLost
@@ -270,7 +268,6 @@ public class ReceptionForm extends javax.swing.JFrame {
             txtAge.setText(String.valueOf(p.getAge()));
             cbGender.setSelectedItem(p.getGender());
             txtContact_info.setText(p.getContactInfo());
-            
 
             // Lock fields so staff don't accidentally change them
             txtName.setEnabled(false);
@@ -292,31 +289,27 @@ public class ReceptionForm extends javax.swing.JFrame {
 
     private void updateAvailableSlots() {
         try {
-            // 1. Check if Doctor and Date are filled
             if (comboDoctor.getSelectedItem() == null || txtAppointmentDate.getText().isEmpty()) {
                 return;
             }
 
-            // 2. Get inputs
             model.Doctor selectedDoc = (model.Doctor) comboDoctor.getSelectedItem();
             String dateText = txtAppointmentDate.getText().trim();
 
-            // 3. Get BUSY slots from DB (Call Phase 3 method)
-            dao.AppointmentDAO dao = new dao.AppointmentDAO();
-            java.util.Set<String> busySlots = dao.getBookedTimeSlots(selectedDoc.getId(), dateText);
+            // 3. Get BUSY slots from DB (Call the Controller!)
+            java.util.Set<String> busySlots = controller.getBusySlots(selectedDoc.getId(), dateText);
 
             // 4. Reset and Fill Dropdown
             comboTimeSlot.removeAllItems();
 
             for (String slot : ALL_SLOTS) {
                 if (!busySlots.contains(slot)) {
-                    // Only add the slot if it is NOT in the busy list
                     comboTimeSlot.addItem(slot);
                 }
             }
 
         } catch (Exception e) {
-            // If date format is wrong, just ignore for now
+            // Handle exceptions if needed
         }
     }
 

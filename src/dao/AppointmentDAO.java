@@ -5,58 +5,63 @@
 package dao;
 
 import database.DatabaseConnection;
-import java.sql.*;
-
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
 public class AppointmentDAO {
-    
-    
-        public void bookAppointment(int patientId, int doctorId, String dateText, String timeSlot) throws SQLException {
-        String sql = "INSERT INTO appointments (patient_id, doctor_id, appt_date, time_slot) VALUES (?, ?, ?, ?)";
+
+    /**
+     * Inserts a new appointment record into the database.
+     */
+    public boolean addAppointment(int patientId, int doctorId, String dateText, String timeSlot) {
+        String status = "Booked";
+        String sql = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, time_slot, status) VALUES (?, ?, ?, ?, ?)";
         
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
             stmt.setInt(1, patientId);
             stmt.setInt(2, doctorId);
-            // Convert String "2025-12-01" to SQL Date
-            stmt.setDate(3, java.sql.Date.valueOf(dateText)); 
+            stmt.setString(3, dateText); // Date from form (e.g., "YYYY-MM-DD")
             stmt.setString(4, timeSlot);
-            
-            stmt.executeUpdate();
+            stmt.setString(5, status);
+
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error saving appointment:");
+            e.printStackTrace();
+            return false;
         }
     }
     
-    
-
-    // Method: Get a list of all BUSY slots for a specific doctor + date
-   // METHOD 2: Check which slots are busy (For Smart Scheduling)
+    /**
+     * Retrieves all time slots already booked for a specific doctor on a specific date.
+     */
     public Set<String> getBookedTimeSlots(int doctorId, String dateText) {
-        Set<String> bookedSlots = new HashSet<>();
-        String sql = "SELECT time_slot FROM appointments WHERE doctor_id = ? AND appt_date = ?";
-        
+        Set<String> busySlots = new HashSet<>();
+        String sql = "SELECT time_slot FROM appointments WHERE doctor_id = ? AND appointment_date = ? AND status = 'Booked'";
+
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
             stmt.setInt(1, doctorId);
-            stmt.setDate(2, java.sql.Date.valueOf(dateText)); 
-            
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                bookedSlots.add(rs.getString("time_slot"));
+            stmt.setString(2, dateText); 
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    busySlots.add(rs.getString("time_slot"));
+                }
             }
-        } catch (Exception e) {
-            // If date format is wrong (e.g. empty), just return empty list
-            // e.printStackTrace(); 
+        } catch (SQLException e) {
+            System.err.println("Error retrieving booked slots:");
+            e.printStackTrace();
         }
-        return bookedSlots;
+        return busySlots;
     }
-    
-
-        
-
-   
-
 }
