@@ -84,32 +84,47 @@ public class LoginDialog extends javax.swing.JFrame {
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         String loginId = txtLoginId.getText().trim();
-        String password = new String(txtPassword.getPassword());
+        String password = new String(txtPassword.getPassword()).trim(); // Ensure password is trimmed
 
-        // We'll use the DAO directly here for the Doctor login case to get the Doctor object
-        dao.DoctorDAO docDao = new dao.DoctorDAO();
-        model.Doctor loggedInDoctor = docDao.login(loginId, password);
-
-        // --- DOCTOR LOGIN CHECK ---
-        if (loggedInDoctor != null) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Welcome, Doctor " + loggedInDoctor.getName() + "!");
-
-            // **NEW:** Pass the doctor_id (which is model.Doctor.getId()) to the DoctorPortal
-            new view.DoctorPortal(loggedInDoctor.getId()).setVisible(true);
-            this.dispose();
-            return; // Exit method
+        if (loginId.isEmpty() || password.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Please enter both Login ID and Password.");
+            return;
         }
-        // --------------------------
 
-        // --- ADMIN/GENERAL CHECK (if it wasn't a Doctor) ---
+        // Initialize the controller
         controller.LoginController controller = new controller.LoginController();
-        String result = controller.authenticate(loginId, password);
 
-        if (result.equals("Admin")) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Welcome, Admin " + loginId + "!");
-            new view.AdminPanel().setVisible(true);
-            this.dispose();
+        // 1. Authenticate ALL user types in ONE call
+        // The controller returns a model.User object (Doctor or StaffUser) or null.
+        model.User authenticatedUser = controller.authenticate(loginId, password);
+
+        if (authenticatedUser != null) {
+            // Authentication SUCCESS!
+
+            // 2. Get the role from the authenticated object
+            String role = authenticatedUser.getRole();
+
+            javax.swing.JOptionPane.showMessageDialog(this, "Login Successful! Welcome, " + role + " " + loginId + "!");
+
+            // 3. Open the correct portal based on the role
+            if (role.equals("Admin")) {
+                new view.AdminPanel().setVisible(true);
+
+            } else if (role.equals("Receptionist")) {
+                new view.ReceptionForm().setVisible(true); // Assuming Receptionist opens the booking form
+
+            } else if (role.equals("Doctor")) {
+                // Since the Doctor model implements User, we can safely cast and get the ID
+                model.Doctor loggedInDoctor = (model.Doctor) authenticatedUser;
+
+                // Pass the Doctor's unique ID to the portal for fetching their specific schedule
+                new view.DoctorPortal(loggedInDoctor.getId()).setVisible(true);
+            }
+
+            this.dispose(); // Close the login window
+
         } else {
+            // Authentication FAILED
             javax.swing.JOptionPane.showMessageDialog(this, "Login Failed. Check ID and Password.");
         }
     }//GEN-LAST:event_btnLoginActionPerformed

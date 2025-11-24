@@ -4,7 +4,11 @@
  */
 package view;
 
+import javax.swing.table.DefaultTableModel;
 import controller.AdminController;
+import controller.AdminController;
+import model.Doctor;
+import java.util.List;
 
 /**
  *
@@ -19,27 +23,37 @@ public class AdminPanel extends javax.swing.JFrame {
      */
     public AdminPanel() {
         initComponents();
-        loadDoctors();
         updateDashboardStats();
+        loadDoctorTable();
     }
 
-    // Helper method to refresh the table with current doctor data
-    private void loadDoctors() {
-        dao.DoctorDAO dao = new dao.DoctorDAO();
-        java.util.List<model.Doctor> doctors = dao.getAllDoctors();
+    private void loadDoctorTable() {
+        // 1. Define Table Model structure
+        DefaultTableModel model = new DefaultTableModel();
+        model.setColumnIdentifiers(new Object[]{"ID", "Name", "Specialization", "Age", "Contact", "Login ID"});
 
-        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblDoctors.getModel();
-        model.setRowCount(0); // Clear old data
+        try {
+            // 2. Fetch data from the controller
+            List<Doctor> doctors = controller.getAllDoctors(); // Already defined in AdminController
 
-        for (model.Doctor d : doctors) {
-            model.addRow(new Object[]{
-                d.getId(),
-                d.getName(),
-                d.getSpecialization(),
-                // is_available status is not currently in Doctor model, 
-                // but we'll show specialization status for now.
-                d.getSpecialization()
-            });
+            // 3. Populate rows
+            for (Doctor d : doctors) {
+                model.addRow(new Object[]{
+                    d.getId(),
+                    d.getName(),
+                    d.getSpecialization(),
+                    d.getAge(),
+                    d.getContactInfo(),
+                    d.getLoginId()
+                });
+            }
+
+            // 4. Set the model to the JTable
+            tblDoctors.setModel(model);
+
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error loading doctor list: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -75,41 +89,52 @@ public class AdminPanel extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tblDoctors = new javax.swing.JTable();
         lblWaitingCount = new javax.swing.JLabel();
         lblInTreatmentCount = new javax.swing.JLabel();
         lblCompleteCount = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblDoctors = new javax.swing.JTable();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         menuRegisterDoctor = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        tblDoctors.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "ID", "Name", "Specialization", "Available"
-            }
-        ));
-        jScrollPane1.setViewportView(tblDoctors);
-
         lblWaitingCount.setFont(new java.awt.Font("Georgia", 1, 18)); // NOI18N
-        lblWaitingCount.setText("a");
+        lblWaitingCount.setText("Waiting : ");
 
         lblInTreatmentCount.setFont(new java.awt.Font("Georgia", 1, 18)); // NOI18N
         lblInTreatmentCount.setForeground(new java.awt.Color(0, 204, 0));
-        lblInTreatmentCount.setText("a");
+        lblInTreatmentCount.setText("In - treatment : ");
         lblInTreatmentCount.setToolTipText("");
 
         lblCompleteCount.setFont(new java.awt.Font("Georgia", 1, 18)); // NOI18N
         lblCompleteCount.setForeground(new java.awt.Color(0, 153, 255));
-        lblCompleteCount.setText("a");
+        lblCompleteCount.setText("Complete : ");
+
+        tblDoctors.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
+            },
+            new String [] {
+                "ID", "Name", "Specialization", "Age", "Contact", "Login ID"
+            }
+        ));
+        jScrollPane2.setViewportView(tblDoctors);
+
+        jButton1.setText("Manage Appointment");
+
+        jButton2.setText("Manage Doctor");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jMenu1.setText("Action");
 
@@ -129,18 +154,24 @@ public class AdminPanel extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(41, 41, 41)
                 .addComponent(lblWaitingCount)
-                .addGap(136, 136, 136)
+                .addGap(121, 121, 121)
                 .addComponent(lblInTreatmentCount)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 160, Short.MAX_VALUE)
                 .addComponent(lblCompleteCount)
                 .addGap(62, 62, 62))
             .addGroup(layout.createSequentialGroup()
-                .addGap(147, 147, 147)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(193, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(jScrollPane2)
+                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(104, 104, 104)
+                .addComponent(jButton1)
+                .addGap(169, 169, 169)
+                .addComponent(jButton2)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -150,9 +181,13 @@ public class AdminPanel extends javax.swing.JFrame {
                     .addComponent(lblWaitingCount)
                     .addComponent(lblInTreatmentCount)
                     .addComponent(lblCompleteCount))
-                .addGap(150, 150, 150)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(150, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
+                .addGap(53, 53, 53)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18))
         );
 
         pack();
@@ -164,6 +199,10 @@ public class AdminPanel extends javax.swing.JFrame {
         this.dispose();
 
     }//GEN-LAST:event_menuRegisterDoctorActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -201,9 +240,11 @@ public class AdminPanel extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblCompleteCount;
     private javax.swing.JLabel lblInTreatmentCount;
     private javax.swing.JLabel lblWaitingCount;

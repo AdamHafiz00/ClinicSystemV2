@@ -8,6 +8,17 @@ package model;
  *
  * @author Adam
  */
-public class User {
+public interface User {
     
+    // Abstract methods that must be implemented by any class implementing this interface
+    
+    // Assuming 'contactInfo' or a separate 'username' field will be used for login
+    
+    
+    String getLoginId(); 
+    
+    String getPassword();
+    
+    // An optional method to determine the entity's role (helpful for routing after login)
+    String getRole(); 
 }
