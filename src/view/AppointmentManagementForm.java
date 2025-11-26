@@ -4,17 +4,90 @@
  */
 package view;
 
+import controller.AdminController;
+import model.Doctor;
+import java.util.List;
+import java.util.Map;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import java.text.SimpleDateFormat; // For date formatting
+import java.util.Date;
+import com.toedter.calendar.JDateChooser;
+
 /**
  *
  * @author Adam
  */
 public class AppointmentManagementForm extends javax.swing.JFrame {
 
+    private final AdminController controller = new AdminController();
+
     /**
      * Creates new form AppointmentManagementForm
      */
     public AppointmentManagementForm() {
         initComponents();
+        loadDoctorsIntoFilter();
+        populateTimeFilter();// Load doctors for the dropdown
+        loadAppointmentTable(-1, null, null); // Load ALL appointments initially
+    }
+
+    private void loadAppointmentTable(int doctorId, String date, String time) {
+        DefaultTableModel model = new DefaultTableModel();
+        // Column identifiers must match the order in the JTable design
+        model.setColumnIdentifiers(new Object[]{"Appt ID", "Date", "Time", "Doctor", "Patient", "IC Number", "Status"});
+
+        try {
+            List<Map<String, Object>> appointments = controller.getViewAppointments(doctorId, date,time);
+
+            for (Map<String, Object> row : appointments) {
+                model.addRow(new Object[]{
+                    row.get("id"),
+                    row.get("date"),
+                    row.get("time"),
+                    row.get("doctor"),
+                    row.get("patient"),
+                    row.get("ic"),
+                    row.get("status")
+                });
+            }
+
+            // FIX: Use the component name jTable1
+            jTable1.setModel(model);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading appointments: " + e.getMessage());
+        }
+    }
+
+    private void loadDoctorsIntoFilter() {
+        try {
+            List<Doctor> doctors = controller.getAllDoctors();
+            cbFilterDoctor.removeAllItems();
+
+            // Add "All Doctors" as the default selection (String item)
+            cbFilterDoctor.addItem("All Doctors");
+
+            for (Doctor d : doctors) {
+                // Add the actual Doctor object to the ComboBox. This allows us to retrieve the ID later.
+                cbFilterDoctor.addItem(d);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void populateTimeFilter() {
+        cbFilterTime.removeAllItems();
+        cbFilterTime.addItem("All Times");
+        // Add common time slots based on the dummy data we used
+        cbFilterTime.addItem("09:00-10:00");
+        cbFilterTime.addItem("10:00-11:00");
+        cbFilterTime.addItem("11:00-12:00");
+        cbFilterTime.addItem("14:00-15:00");
+        cbFilterTime.addItem("15:00-16:00");
+        // You can add more time slots here if your clinic has them
     }
 
     /**
@@ -28,9 +101,14 @@ public class AppointmentManagementForm extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jDayChooser1 = new com.toedter.calendar.JDayChooser();
         jLabel1 = new javax.swing.JLabel();
         cbFilterDoctor = new javax.swing.JComboBox<>();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        cbFilterTime = new javax.swing.JComboBox<>();
+        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        btnDelete = new javax.swing.JButton();
+        btnFilter = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -49,39 +127,134 @@ public class AppointmentManagementForm extends javax.swing.JFrame {
 
         jLabel1.setText("Date Filter:");
 
+        jLabel2.setText("Time");
+
+        jLabel3.setText("Doctor : ");
+
+        btnDelete.setText("Delete Appointment");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
+
+        btnFilter.setText("Search");
+        btnFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFilterActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(79, 79, 79)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 801, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(84, 84, 84)
                         .addComponent(jLabel1)
+                        .addGap(18, 18, 18)
+                        .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cbFilterDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(27, 27, 27)
+                        .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jDayChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(71, 71, 71)
-                        .addComponent(cbFilterDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(cbFilterTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(79, 79, 79)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 801, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(287, 287, 287)
+                            .addComponent(btnDelete)
+                            .addGap(123, 123, 123)
+                            .addComponent(btnFilter))))
                 .addContainerGap(76, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(63, 63, 63)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 408, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(36, 36, 36)
+                .addGap(35, 35, 35)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jDayChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1)
-                    .addComponent(cbFilterDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(55, Short.MAX_VALUE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(cbFilterDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel2)
+                        .addComponent(jLabel3)
+                        .addComponent(cbFilterTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 408, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(78, 78, 78)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnDelete)
+                    .addComponent(btnFilter))
+                .addContainerGap(97, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+// (Existing Delete Logic)
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select an appointment to cancel.");
+            return;
+        }
+
+        int apptId = (int) jTable1.getValueAt(selectedRow, 0);
+
+        int confirm = JOptionPane.showConfirmDialog(this, "Cancel Appointment ID: " + apptId + "?");
+        if (confirm == JOptionPane.YES_OPTION) {
+            boolean success = controller.cancelAppointment(apptId); // Assuming you implemented this as requested
+
+            if (success) {
+                loadAppointmentTable(-1, null, null); // Refresh table with ALL data
+                JOptionPane.showMessageDialog(this, "Appointment cancelled successfully.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to cancel appointment.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+
+        }    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFilterActionPerformed
+        // 1. Get Doctor ID
+        int docId = -1;
+        Object selectedItem = cbFilterDoctor.getSelectedItem();
+
+        if (selectedItem instanceof Doctor) {
+            Doctor selectedDoc = (Doctor) selectedItem;
+            docId = selectedDoc.getId();
+        }
+
+        // 2. Get Date from JDateChooser
+        String date = null;
+        try {
+            Date selectedDate = jDateChooser1.getDate();
+            if (selectedDate != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                date = sdf.format(selectedDate);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Date filtering error.", "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println("Date filtering error: " + e.getMessage());
+        }
+
+        // 3. Get Time Filter <--- NEW LOGIC IMPLEMENTATION
+        String time = null;
+        Object selectedTime = cbFilterTime.getSelectedItem();
+        if (selectedTime != null && !"All Times".equals(selectedTime.toString())) {
+            time = selectedTime.toString();
+        }
+
+        // 4. Reload Table
+        loadAppointmentTable(docId, date, time); // <--- UPDATED CALL
+    }//GEN-LAST:event_btnFilterActionPerformed
 
     /**
      * @param args the command line arguments
@@ -119,9 +292,14 @@ public class AppointmentManagementForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> cbFilterDoctor;
-    private com.toedter.calendar.JDayChooser jDayChooser1;
+    private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnFilter;
+    private javax.swing.JComboBox<Object> cbFilterDoctor;
+    private javax.swing.JComboBox<Object> cbFilterTime;
+    private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables

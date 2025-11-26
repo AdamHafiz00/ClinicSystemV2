@@ -4,17 +4,98 @@
  */
 package view;
 
+import controller.AdminController;
+import model.Doctor;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Adam
  */
 public class DoctorManagementForm extends javax.swing.JFrame {
 
+    private final AdminController controller = new AdminController();
+// To store the ID of the doctor currently being edited
+    private int selectedDoctorId = -1;
+
     /**
      * Creates new form DoctorManagementForm
      */
     public DoctorManagementForm() {
         initComponents();
+        loadDoctorTable();
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+    }
+
+    private void loadDoctorTable() {
+        DefaultTableModel model = new DefaultTableModel();
+        // Define columns exactly as we planned
+        model.setColumnIdentifiers(new Object[]{"ID", "Name", "Age", "Gender", "Contact", "Specialization", "Login ID", "Password"});
+
+        try {
+            List<Doctor> doctors = controller.getAllDoctors();
+
+            for (Doctor d : doctors) {
+                model.addRow(new Object[]{
+                    d.getId(),
+                    d.getName(),
+                    d.getAge(),
+                    d.getGender(),
+                    d.getContactInfo(),
+                    d.getSpecialization(),
+                    d.getLoginId(),
+                    d.getPassword() // Displaying password (optional, good for admin management)
+                });
+            }
+            tblDoctors.setModel(model);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void clearFields() {
+        txtName.setText("");
+        txtAge.setText("");
+        txtContact.setText("");
+        txtSpecialization.setText("");
+        txtLoginId.setText("");
+        txtPassword.setText("");
+        selectedDoctorId = -1;
+        tblDoctors.clearSelection();
+
+        btnAdd.setEnabled(true);
+        btnUpdate.setEnabled(false);
+        btnDelete.setEnabled(false);
+        txtLoginId.setEditable(true);
+    }
+
+    private Doctor createDoctorFromInputs(int id) {
+        String name = txtName.getText().trim();
+        int age = Integer.parseInt(txtAge.getText().trim());
+        String gender = cbGender.getSelectedItem().toString();
+        String contact = txtContact.getText().trim();
+        String spec = txtSpecialization.getText().trim();
+        String pass = txtPassword.getText().trim();
+        String login = txtLoginId.getText().trim();
+
+        return new Doctor(id, name, age, gender, contact, spec, pass, login);
+    }
+
+    private boolean validateInputs() {
+        if (txtName.getText().isEmpty() || txtLoginId.getText().isEmpty() || txtPassword.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill all required fields (Name, Login ID, Password).");
+            return false;
+        }
+        try {
+            Integer.parseInt(txtAge.getText().trim());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Age must be a number.");
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -26,8 +107,8 @@ public class DoctorManagementForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        tblDoctors = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblDoctors = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -37,11 +118,26 @@ public class DoctorManagementForm extends javax.swing.JFrame {
         txtSpecialization = new javax.swing.JTextField();
         txtLoginId = new javax.swing.JTextField();
         txtPassword = new javax.swing.JTextField();
-        txtContactInfo = new javax.swing.JTextField();
+        txtContact = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        txtAge = new javax.swing.JTextField();
+        cbGender = new javax.swing.JComboBox<>();
+        btnAdd = new javax.swing.JButton();
+        btnUpdate = new javax.swing.JButton();
+        btnDelete = new javax.swing.JButton();
+        btnClear = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        jScrollPane1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jScrollPane1MouseClicked(evt);
+            }
+        });
+
+        tblDoctors.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null},
@@ -52,7 +148,12 @@ public class DoctorManagementForm extends javax.swing.JFrame {
                 "ID", "Name", "Specialization", "Login ID", "Password", "Contact", "Status"
             }
         ));
-        tblDoctors.setViewportView(jTable1);
+        tblDoctors.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblDoctorsMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblDoctors);
 
         jLabel1.setText("Doctor Name : ");
 
@@ -64,6 +165,42 @@ public class DoctorManagementForm extends javax.swing.JFrame {
 
         jLabel5.setText("Contact Info : ");
 
+        jLabel6.setText("Age : ");
+
+        jLabel7.setText("Gender : ");
+
+        jLabel8.setText("lblID");
+
+        cbGender.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female" }));
+
+        btnAdd.setText("Register New");
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
+
+        btnUpdate.setText("Save Changes");
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
+
+        btnDelete.setText("Delete Doctor");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
+
+        btnClear.setText("Clear Fields");
+        btnClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnClearActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -72,43 +209,73 @@ public class DoctorManagementForm extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(28, 28, 28)
-                        .addComponent(tblDoctors, javax.swing.GroupLayout.PREFERRED_SIZE, 765, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 765, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(82, 82, 82)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel8)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel5)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel3)
+                                            .addComponent(jLabel2)
+                                            .addComponent(jLabel4))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(txtSpecialization)
+                                            .addComponent(txtLoginId)
+                                            .addComponent(txtPassword)))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel5)
+                                        .addGap(18, 18, 18)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(btnAdd)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(btnUpdate)
+                                                .addGap(0, 0, Short.MAX_VALUE))
+                                            .addComponent(txtContact))))
                                 .addGap(18, 18, 18)
-                                .addComponent(txtContactInfo))
-                            .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel2)
-                                    .addComponent(jLabel4))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtSpecialization)
-                                    .addComponent(txtLoginId)
-                                    .addComponent(txtPassword))))))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel7)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel6)
+                                        .addGap(28, 28, 28)
+                                        .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(btnDelete)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnClear)))))))
                 .addContainerGap(39, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(27, 27, 27)
-                .addComponent(tblDoctors, javax.swing.GroupLayout.PREFERRED_SIZE, 355, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(40, 40, 40)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 355, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel8)
+                .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6)
+                    .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
-                    .addComponent(txtSpecialization, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(txtSpecialization, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel7)
+                        .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
@@ -120,12 +287,92 @@ public class DoctorManagementForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
-                    .addComponent(txtContactInfo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(225, Short.MAX_VALUE))
+                    .addComponent(txtContact, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(31, 31, 31)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAdd)
+                    .addComponent(btnUpdate)
+                    .addComponent(btnDelete)
+                    .addComponent(btnClear))
+                .addContainerGap(171, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jScrollPane1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane1MouseClicked
+
+    }//GEN-LAST:event_jScrollPane1MouseClicked
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        if (validateInputs()) {
+            Doctor d = createDoctorFromInputs(-1); // ID is -1 for new
+            if (controller.addDoctor(d)) {
+                JOptionPane.showMessageDialog(this, "Doctor Added Successfully!");
+                loadDoctorTable();
+                clearFields();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to add doctor. Check Login ID uniqueness.");
+            }
+        }    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        if (selectedDoctorId == -1) {
+            JOptionPane.showMessageDialog(this, "Select a doctor first!");
+            return;
+        }
+
+        if (validateInputs()) {
+            Doctor d = createDoctorFromInputs(selectedDoctorId); // Use selected ID
+            if (controller.updateDoctor(d)) {
+                JOptionPane.showMessageDialog(this, "Doctor Updated Successfully!");
+                loadDoctorTable();
+                clearFields();
+            } else {
+                JOptionPane.showMessageDialog(this, "Update Failed.");
+            }
+        }    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        if (selectedDoctorId == -1) {
+            JOptionPane.showMessageDialog(this, "Select a doctor first!");
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this, "Delete Doctor ID: " + selectedDoctorId + "?\n(All appointments for this doctor will be cancelled)");
+        if (confirm == JOptionPane.YES_OPTION) {
+            if (controller.deleteDoctor(selectedDoctorId)) {
+                JOptionPane.showMessageDialog(this, "Doctor Deleted.");
+                loadDoctorTable();
+                clearFields();
+            } else {
+                JOptionPane.showMessageDialog(this, "Delete Failed.");
+            }
+        }    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        clearFields();
+    }//GEN-LAST:event_btnClearActionPerformed
+
+    private void tblDoctorsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDoctorsMouseClicked
+        int row = tblDoctors.getSelectedRow();
+        if (row != -1) {
+            // Get data from table model
+            selectedDoctorId = (int) tblDoctors.getValueAt(row, 0);
+            txtName.setText((String) tblDoctors.getValueAt(row, 1));
+            txtAge.setText(String.valueOf(tblDoctors.getValueAt(row, 2)));
+            cbGender.setSelectedItem((String) tblDoctors.getValueAt(row, 3));
+            txtContact.setText((String) tblDoctors.getValueAt(row, 4));
+            txtSpecialization.setText((String) tblDoctors.getValueAt(row, 5));
+            txtLoginId.setText((String) tblDoctors.getValueAt(row, 6));
+            txtPassword.setText((String) tblDoctors.getValueAt(row, 7));
+
+            // Disable Login ID editing if you want to prevent changing it, or leave enabled
+            // txtLoginId.setEditable(false); 
+            btnAdd.setEnabled(false); // Disable Add button while editing
+            btnUpdate.setEnabled(true);
+            btnDelete.setEnabled(true);
+        }    }//GEN-LAST:event_tblDoctorsMouseClicked
 
     /**
      * @param args the command line arguments
@@ -163,14 +410,23 @@ public class DoctorManagementForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAdd;
+    private javax.swing.JButton btnClear;
+    private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnUpdate;
+    private javax.swing.JComboBox<String> cbGender;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JScrollPane tblDoctors;
-    private javax.swing.JTextField txtContactInfo;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tblDoctors;
+    private javax.swing.JTextField txtAge;
+    private javax.swing.JTextField txtContact;
     private javax.swing.JTextField txtLoginId;
     private javax.swing.JTextField txtName;
     private javax.swing.JTextField txtPassword;

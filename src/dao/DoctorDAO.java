@@ -154,7 +154,7 @@ public class DoctorDAO {
 
         // SQL query to insert doctor details. Note: You must ensure your 'doctors' table 
         // includes columns for all inherited fields (name, age, gender, contact_info).
-        String sql = "INSERT INTO doctors (name, age, gender, contact_info, specialization) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO doctors (name, age, gender, contact_info, specialization, login_id, password) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection(); // Use RETURN_GENERATED_KEYS to get the new doctor_id
                  PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {

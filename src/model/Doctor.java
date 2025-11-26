@@ -22,7 +22,7 @@ public class Doctor extends Person implements User {
     // It tells the GUI to display the Doctor's Name, not the memory address.
     @Override
     public String toString() {
-        return this.getName() + " (" + this.specialization + ")";
+       return this.getName();
     }
     
     @Override
@@ -40,5 +40,6 @@ public class Doctor extends Person implements User {
     public String getRole() {
         return "Doctor";
     }
+    
 }
 //public Person(int id, String name, int age, String gender, String contact_info) {

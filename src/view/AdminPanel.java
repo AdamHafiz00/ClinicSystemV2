@@ -5,7 +5,7 @@
 package view;
 
 import javax.swing.table.DefaultTableModel;
-import controller.AdminController;
+
 import controller.AdminController;
 import model.Doctor;
 import java.util.List;
@@ -28,31 +28,30 @@ public class AdminPanel extends javax.swing.JFrame {
     }
 
     private void loadDoctorTable() {
-        // 1. Define Table Model structure
+        // 1. Define Table Model structure for Appointments
         DefaultTableModel model = new DefaultTableModel();
-        model.setColumnIdentifiers(new Object[]{"ID", "Name", "Specialization", "Age", "Contact", "Login ID"});
+        // We are now showing Appointment data, not Doctor data
+        model.setColumnIdentifiers(new Object[]{"Appointment ID", "Patient Name", "Diagnosis", "Status"});
 
         try {
-            // 2. Fetch data from the controller
-            List<Doctor> doctors = controller.getAllDoctors(); // Already defined in AdminController
+            // 2. Fetch data from the controller for 'in-treatment' appointments
+            java.util.List<java.util.Map<String, Object>> appointments = controller.getInTreatmentAppointmentsForAdmin();
 
             // 3. Populate rows
-            for (Doctor d : doctors) {
+            for (java.util.Map<String, Object> appointment : appointments) {
                 model.addRow(new Object[]{
-                    d.getId(),
-                    d.getName(),
-                    d.getSpecialization(),
-                    d.getAge(),
-                    d.getContactInfo(),
-                    d.getLoginId()
+                    appointment.get("appointment_id"),
+                    appointment.get("patient_name"),
+                    appointment.get("diagnosis"),
+                    appointment.get("status")
                 });
             }
 
-            // 4. Set the model to the JTable
+            // 4. Set the model to the JTable (assuming the JTable variable is still named tblDoctors)
             tblDoctors.setModel(model);
 
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error loading doctor list: " + e.getMessage());
+            javax.swing.JOptionPane.showMessageDialog(this, "Error loading active appointment list: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -97,8 +96,6 @@ public class AdminPanel extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        menuRegisterDoctor = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -128,6 +125,11 @@ public class AdminPanel extends javax.swing.JFrame {
         jScrollPane2.setViewportView(tblDoctors);
 
         jButton1.setText("Manage Appointment");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Manage Doctor");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -135,19 +137,6 @@ public class AdminPanel extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-
-        jMenu1.setText("Action");
-
-        menuRegisterDoctor.setText("Register New Doctor");
-        menuRegisterDoctor.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuRegisterDoctorActionPerformed(evt);
-            }
-        });
-        jMenu1.add(menuRegisterDoctor);
-
-        jMenuBar1.add(jMenu1);
-
         setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -181,7 +170,7 @@ public class AdminPanel extends javax.swing.JFrame {
                     .addComponent(lblWaitingCount)
                     .addComponent(lblInTreatmentCount)
                     .addComponent(lblCompleteCount))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 77, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
@@ -193,16 +182,12 @@ public class AdminPanel extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void menuRegisterDoctorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuRegisterDoctorActionPerformed
-        // Launch the dedicated registration form
-        new view.RegisterDoctorForm().setVisible(true);
-        this.dispose();
-
-    }//GEN-LAST:event_menuRegisterDoctorActionPerformed
-
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+        new DoctorManagementForm().setVisible(true);    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        new AppointmentManagementForm().setVisible(true);
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -242,13 +227,11 @@ public class AdminPanel extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblCompleteCount;
     private javax.swing.JLabel lblInTreatmentCount;
     private javax.swing.JLabel lblWaitingCount;
-    private javax.swing.JMenuItem menuRegisterDoctor;
     private javax.swing.JTable tblDoctors;
     // End of variables declaration//GEN-END:variables
 }

@@ -40,7 +40,7 @@ public class ReceptionistController {
         } else {
             // 2. Patient is new, so add to DB
             // NOTE: Must match the Patient constructor arguments
-            Patient newPatient = new Patient(-1, name, age, gender, contact_info, icNumber, diagnosis, "Pending");
+            Patient newPatient = new Patient(-1, name, age, gender, contact_info, icNumber);
             patientId = patientDAO.addPatient(newPatient);
             
             if (patientId == -1) {

@@ -4,12 +4,19 @@
  */
 package view;
 
+import dao.AppointmentDAO;
+import java.util.List;
+import java.util.Map;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Adam
  */
 public class DoctorPortal extends javax.swing.JFrame {
 
+    private final AppointmentDAO appointmentDAO = new AppointmentDAO(); // Instantiate DAO
     private int loggedInDoctorId; // New field to store the ID
 
     /**
@@ -17,31 +24,44 @@ public class DoctorPortal extends javax.swing.JFrame {
      */
     public DoctorPortal(int doctorId) {
         initComponents();
-        this.loggedInDoctorId = doctorId; // Store the ID for later use (e.g., updating record)
+        this.loggedInDoctorId = 1; // Store the ID for later use (e.g., updating record)
         refreshTable(); // Now calls the simpler refreshTable without arguments
     }
 
 // Update the refreshTable method (it no longer needs the doctorId argument)
     private void refreshTable() {
-        // 1. The ID is now available via the class field
         int doctorId = this.loggedInDoctorId;
 
-        // 2. Get their patients from DB using the stored ID
-        dao.PatientDAO dao = new dao.PatientDAO();
-        java.util.List<model.Patient> patients = dao.getPatientsByDoctorId(doctorId);
+        // Use AppointmentDAO to get detailed appointment data for today
+        List<Map<String, Object>> appointmentDetails = null;
 
-        // 3. Clear and Fill Table (The rest remains the same)
-        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblPatients.getModel();
-        model.setRowCount(0);
+        try {
+            // New DAO method to get active appointments (waiting/in-treatment)
+            appointmentDetails = appointmentDAO.getTodaysActiveAppointmentsByDoctor(doctorId);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error loading appointments: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+            return; // Stop execution on error
+        }
 
-        for (model.Patient p : patients) {
+        DefaultTableModel model = (DefaultTableModel) tblPatients.getModel();
+        model.setRowCount(0); // Clear existing rows
+
+        for (Map<String, Object> appointment : appointmentDetails) {
+            // Populate all 5 columns: ID, Name, Age, Diagnosis, Status
             model.addRow(new Object[]{
-                p.getId(),
-                p.getName(),
-                p.getAge(),
-                p.getDiagnosis(),
-                p.getStatus()
+                // FIX: Column 0 MUST be the Appointment ID (used for updates)
+                appointment.get("appointment_id"),
+                appointment.get("patient_name"),
+                appointment.get("patient_age"),
+                appointment.get("diagnosis"),
+                appointment.get("status")
             });
+        }
+
+        // Auto-select the first row after refresh
+        if (model.getRowCount() > 0) {
+            tblPatients.setRowSelectionInterval(0, 0);
         }
     }
 
@@ -126,29 +146,37 @@ public class DoctorPortal extends javax.swing.JFrame {
         // 1. Check if a row is selected
         int selectedRow = tblPatients.getSelectedRow();
         if (selectedRow == -1) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Please click on a patient in the table first!");
+            JOptionPane.showMessageDialog(this, "Please click on a patient in the table first!");
             return;
         }
 
         try {
-            // 2. Get Data from Table and Text Area
-            // Assuming Column 0 is ID (Integer)
-            int patientId = Integer.parseInt(tblPatients.getValueAt(selectedRow, 0).toString());
+            // 2. Get Data: Column 0 is now the Appointment ID
+            int appointmentId = Integer.parseInt(tblPatients.getValueAt(selectedRow, 0).toString());
             String newDiagnosis = txtDiagnosis.getText();
 
-            // 3. Update in Database
-            dao.PatientDAO dao = new dao.PatientDAO();
-            dao.updateDiagnosis(patientId, newDiagnosis);
+            // 3. Update in Database: Use the specific method to move the status to 'in-treatment'
+            // This is triggered when the doctor starts working on the diagnosis.
+            String status = "in-treatment";
+            boolean success = appointmentDAO.updateDiagnosisAndStartTreatment(appointmentId, status,newDiagnosis);
 
-            javax.swing.JOptionPane.showMessageDialog(this, "Record Updated!");
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Record Updated! Patient status set to In-Treatment.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Update Failed! Check database connection or record existence.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
 
-            // 4. Refresh to show changes
+            // 4. Refresh and clear
             refreshTable();
             txtDiagnosis.setText(""); // Clear box
 
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Error processing Appointment ID.", "Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
+
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     /**
@@ -182,7 +210,7 @@ public class DoctorPortal extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new DoctorPortal(5).setVisible(true); // '1' for testing
-                
+
             }
 
         }
