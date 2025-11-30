@@ -20,6 +20,10 @@
             <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/view/AdminPanel.java</file>
             <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/view/DoctorManagementForm.java</file>
             <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/view/AppointmentManagementForm.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/view/ReceptionForm.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/dao/PatientDAO.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/view/DoctorPortal.java</file>
+            <file>file:/C:/Users/Adam/Documents/NetBeansProjects/ClinicSystemV2/src/view/MainMenu.java</file>
         </group>
     </open-files>
 </project-private>
