@@ -32,7 +32,7 @@ public class DoctorManagementForm extends javax.swing.JFrame {
     private void loadDoctorTable() {
         DefaultTableModel model = new DefaultTableModel();
         // Define columns exactly as we planned
-        model.setColumnIdentifiers(new Object[]{"ID", "Name", "Age", "Gender", "Contact", "Specialization", "Login ID", "Password"});
+        model.setColumnIdentifiers(new Object[]{"ID", "Name", "Age", "Gender", "Contact", "Specialization"});
 
         try {
             List<Doctor> doctors = controller.getAllDoctors();
@@ -60,15 +60,13 @@ public class DoctorManagementForm extends javax.swing.JFrame {
         txtAge.setText("");
         txtContact.setText("");
         txtSpecialization.setText("");
-        txtLoginId.setText("");
-        txtPassword.setText("");
         selectedDoctorId = -1;
         tblDoctors.clearSelection();
 
         btnAdd.setEnabled(true);
         btnUpdate.setEnabled(false);
         btnDelete.setEnabled(false);
-        txtLoginId.setEditable(true);
+
     }
 
     private Doctor createDoctorFromInputs(int id) {
@@ -77,15 +75,14 @@ public class DoctorManagementForm extends javax.swing.JFrame {
         String gender = cbGender.getSelectedItem().toString();
         String contact = txtContact.getText().trim();
         String spec = txtSpecialization.getText().trim();
-        String pass = txtPassword.getText().trim();
-        String login = txtLoginId.getText().trim();
+
 
         return new Doctor(id, name, age, gender, contact, spec);
     }
 
     private boolean validateInputs() {
-        if (txtName.getText().isEmpty() || txtLoginId.getText().isEmpty() || txtPassword.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill all required fields (Name, Login ID, Password).");
+        if (txtName.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill all required fields (Name).");
             return false;
         }
         try {
@@ -109,14 +106,10 @@ public class DoctorManagementForm extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblDoctors = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         txtName = new javax.swing.JTextField();
         txtSpecialization = new javax.swing.JTextField();
-        txtLoginId = new javax.swing.JTextField();
-        txtPassword = new javax.swing.JTextField();
         txtContact = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -127,6 +120,10 @@ public class DoctorManagementForm extends javax.swing.JFrame {
         btnUpdate = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
         btnClear = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -138,13 +135,13 @@ public class DoctorManagementForm extends javax.swing.JFrame {
 
         tblDoctors.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "ID", "Name", "Specialization", "Login ID", "Password", "Contact", "Status"
+                "ID", "Name", "Specialization", "Contact", "Status"
             }
         ));
         tblDoctors.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -156,11 +153,7 @@ public class DoctorManagementForm extends javax.swing.JFrame {
 
         jLabel1.setText("Doctor Name : ");
 
-        jLabel2.setText("Login_id : ");
-
         jLabel3.setText("Specialization : ");
-
-        jLabel4.setText("Password : ");
 
         jLabel5.setText("Contact Info : ");
 
@@ -200,6 +193,28 @@ public class DoctorManagementForm extends javax.swing.JFrame {
             }
         });
 
+        jMenu1.setText("Action");
+
+        jMenuItem1.setText("Admin Menu");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+
+        jMenuItem2.setText("LogOut");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem2);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -207,53 +222,44 @@ public class DoctorManagementForm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(28, 28, 28)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 765, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(82, 82, 82)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel8)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(jLabel1)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addGap(18, 18, 18)
                                         .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addGroup(layout.createSequentialGroup()
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(jLabel3)
-                                            .addComponent(jLabel2)
-                                            .addComponent(jLabel4))
+                                            .addComponent(jLabel5))
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(txtSpecialization)
-                                            .addComponent(txtLoginId)
-                                            .addComponent(txtPassword)))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel5)
-                                        .addGap(18, 18, 18)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(btnAdd)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(btnUpdate)
-                                                .addGap(0, 0, Short.MAX_VALUE))
-                                            .addComponent(txtContact))))
-                                .addGap(18, 18, 18)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(txtContact, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
+                                            .addComponent(txtSpecialization))))
+                                .addGap(35, 35, 35)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel7)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel6)
-                                        .addGap(28, 28, 28)
-                                        .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(btnDelete)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(btnClear)))))))
-                .addContainerGap(39, Short.MAX_VALUE))
+                                    .addComponent(jLabel7)
+                                    .addComponent(jLabel6))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(28, 28, 28)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 765, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(119, 119, 119)
+                        .addComponent(btnAdd)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnUpdate)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnDelete)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnClear)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -276,24 +282,16 @@ public class DoctorManagementForm extends javax.swing.JFrame {
                         .addComponent(jLabel7)
                         .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(txtLoginId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4)
-                    .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(txtContact, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(31, 31, 31)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAdd)
                     .addComponent(btnUpdate)
                     .addComponent(btnDelete)
                     .addComponent(btnClear))
-                .addContainerGap(171, Short.MAX_VALUE))
+                .addContainerGap(218, Short.MAX_VALUE))
         );
 
         pack();
@@ -363,8 +361,7 @@ public class DoctorManagementForm extends javax.swing.JFrame {
             cbGender.setSelectedItem((String) tblDoctors.getValueAt(row, 3));
             txtContact.setText((String) tblDoctors.getValueAt(row, 4));
             txtSpecialization.setText((String) tblDoctors.getValueAt(row, 5));
-            txtLoginId.setText((String) tblDoctors.getValueAt(row, 6));
-            txtPassword.setText((String) tblDoctors.getValueAt(row, 7));
+
 
             // Disable Login ID editing if you want to prevent changing it, or leave enabled
             // txtLoginId.setEditable(false); 
@@ -372,6 +369,20 @@ public class DoctorManagementForm extends javax.swing.JFrame {
             btnUpdate.setEnabled(true);
             btnDelete.setEnabled(true);
         }    }//GEN-LAST:event_tblDoctorsMouseClicked
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        new AdminPanel().setVisible(true);
+        dispose();
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        new MainMenu().setVisible(true);
+        dispose();
+
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -415,20 +426,20 @@ public class DoctorManagementForm extends javax.swing.JFrame {
     private javax.swing.JButton btnUpdate;
     private javax.swing.JComboBox<String> cbGender;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tblDoctors;
     private javax.swing.JTextField txtAge;
     private javax.swing.JTextField txtContact;
-    private javax.swing.JTextField txtLoginId;
     private javax.swing.JTextField txtName;
-    private javax.swing.JTextField txtPassword;
     private javax.swing.JTextField txtSpecialization;
     // End of variables declaration//GEN-END:variables
 }
