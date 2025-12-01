@@ -67,7 +67,7 @@ public class AdminPanel extends javax.swing.JFrame {
                 lblWaitingCount.setText("Waiting : " + String.valueOf(stats.get("Waiting")));
             }
             if (stats.containsKey("In-treatment")) {
-                lblInTreatmentCount.setText("In-Treatment : " + String.valueOf(stats.get("In-treatment")));
+                lblInTreatmentCount2.setText("In-Treatment : " + String.valueOf(stats.get("In-treatment")));
             }
             if (stats.containsKey("Complete")) {
                 lblCompleteCount.setText("Completed :" + String.valueOf(stats.get("Complete")));
@@ -95,6 +95,7 @@ public class AdminPanel extends javax.swing.JFrame {
         tblDoctors = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
+        lblInTreatmentCount2 = new javax.swing.JLabel();
         jMenuBar2 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         logoutItem = new javax.swing.JMenuItem();
@@ -140,6 +141,10 @@ public class AdminPanel extends javax.swing.JFrame {
             }
         });
 
+        lblInTreatmentCount2.setFont(new java.awt.Font("Georgia", 1, 18)); // NOI18N
+        lblInTreatmentCount2.setForeground(new java.awt.Color(0, 204, 51));
+        lblInTreatmentCount2.setText("In Treatment");
+
         jMenu1.setText("Action");
 
         logoutItem.setText("LogOut");
@@ -161,9 +166,11 @@ public class AdminPanel extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(41, 41, 41)
                 .addComponent(lblWaitingCount)
+                .addGap(141, 141, 141)
+                .addComponent(lblInTreatmentCount2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(lblCompleteCount)
-                .addGap(62, 62, 62))
+                .addGap(90, 90, 90))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 710, Short.MAX_VALUE)
@@ -181,7 +188,8 @@ public class AdminPanel extends javax.swing.JFrame {
                 .addGap(19, 19, 19)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblWaitingCount)
-                    .addComponent(lblCompleteCount))
+                    .addComponent(lblCompleteCount)
+                    .addComponent(lblInTreatmentCount2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
@@ -256,6 +264,7 @@ public class AdminPanel extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblCompleteCount;
     private javax.swing.JLabel lblInTreatmentCount;
+    private javax.swing.JLabel lblInTreatmentCount2;
     private javax.swing.JLabel lblWaitingCount;
     private javax.swing.JMenuItem logoutItem;
     private javax.swing.JTable tblDoctors;
