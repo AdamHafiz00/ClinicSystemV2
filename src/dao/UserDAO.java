@@ -15,76 +15,65 @@ import java.sql.SQLException;
 
 public class UserDAO {
 
-    /**
-     * Attempts to find a user (StaffUser or Doctor) by their login ID and password.
-     * @param loginId The identifier (Doctor ID or Staff Login ID). <--- PARAMETER NAME CHANGE
-     * @param password The raw password.
-     * @return A concrete User object on success, or null if credentials fail.
-     */
-    public User getUserByCredentials(String loginId, String password) { // <--- PARAMETER NAME CHANGE
-        User user = null;
+    public User getUserByCredentials(String loginId, String password) {
+        
+        // --- 1. AUTHENTICATE against the centralized USERS table ---
+        String sqlAuth = "SELECT login_id_pk, username, password, role, login_id "
+                       + "FROM users WHERE login_id = ? AND password = ?";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmtAuth = conn.prepareStatement(sqlAuth)) {
 
-        // --- 1. Check Doctors Table (Doctor ID is used as login ID) ---
-        try {
-            
-            // Query uses doctor_id column, which corresponds to the loginId for doctors
-            String sqlDoctor = "SELECT * FROM doctors WHERE login_id = ? AND password = ?";
+            stmtAuth.setString(1, loginId);
+            stmtAuth.setString(2, password);
 
-            // ... (rest of the Doctor logic remains the same) ...
+            try (ResultSet rsAuth = stmtAuth.executeQuery()) {
+                if (rsAuth.next()) {
+                    
+                    // Valid credentials found. Extract USERS table data.
+                    int userIdPk = rsAuth.getInt("login_id_pk");
+                    String username = rsAuth.getString("username");
+                    String userPassword = rsAuth.getString("password");
+                    String role = rsAuth.getString("role");
+                    String userLoginId = rsAuth.getString("login_id");
 
-            try (Connection conn = DatabaseConnection.getInstance().getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sqlDoctor)) {
-
-                stmt.setString(1, loginId);
-                stmt.setString(2, password);
-
-                // ... (Doctor result set logic) ...
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        user = new Doctor(
-                            rs.getInt("doctor_id"),
-                            rs.getString("name"),
-                            rs.getInt("age"),
-                            rs.getString("gender"),
-                            rs.getString("contact_info"),
-                            rs.getString("specialization"),
-                            rs.getString("login_id"),
-                            rs.getString("password")
-                        );
-                        return user; 
+                    // --- 2. BRANCH based on ROLE ---
+                    if (role.equals("Admin") || role.equals("Receptionist")) {
+                        // StaffUser data is complete from the USERS table
+                        return new StaffUser(userIdPk, username, userPassword, role, userLoginId);
+                    
+                    } else if (role.equals("Doctor")) {
+                        
+                        // --- 3. DOCTOR: Fetch specific details using the Primary Key (userIdPk) ---
+                        
+                        // Assuming you added a FK column named 'user_login_pk_fk' to the doctors table.
+                        String sqlDoctorDetails = "SELECT doctor_id, name, specialization, age, gender, contact_info "
+                                                + "FROM doctors WHERE user_login_pk = ?"; 
+                        
+                        try (PreparedStatement stmtDoctor = conn.prepareStatement(sqlDoctorDetails)) {
+                            stmtDoctor.setInt(1, userIdPk); // Use the integer Primary Key for lookup
+                            
+                            try (ResultSet rsDoc = stmtDoctor.executeQuery()) {
+                                if (rsDoc.next()) {
+                                    // Found all Doctor details!
+                                    return new Doctor(
+                                        rsDoc.getInt("doctor_id"),
+                                        rsDoc.getString("name"),
+                                        rsDoc.getInt("age"),
+                                        rsDoc.getString("gender"),
+                                        rsDoc.getString("contact_info"),
+                                        rsDoc.getString("specialization"),
+                                        userLoginId,  // Retrieved from USERS table
+                                        userPassword  // Retrieved from USERS table
+                                    );
+                                }
+                            }
+                        }
                     }
                 }
             }
-        } catch (NumberFormatException e) {
-            // Login ID wasn't a number, proceed to check staff
         } catch (SQLException e) {
-            System.err.println("Error checking Doctor credentials:");
-            e.printStackTrace();
-        }
-
-        // --- 2. Check USERS Table (for Admin or Receptionist) ---
-        // Query uses the actual login_id column
-        String sqlStaff = "SELECT * FROM users WHERE login_id = ? AND password = ?"; // <--- SQL QUERY CHANGE
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sqlStaff)) {
-
-            stmt.setString(1, loginId); // <--- Use the string loginId parameter
-            stmt.setString(2, password);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    user = new StaffUser(
-                        rs.getInt("login_id_pk"),
-                        rs.getString("username"),
-                        rs.getString("password"),
-                        rs.getString("role"),
-                        rs.getString("login_id")
-                    );
-                    return user;
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Error checking StaffUser credentials:");
+            System.err.println("Database error during user login check:");
             e.printStackTrace();
         }
         

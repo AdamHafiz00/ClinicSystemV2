@@ -209,7 +209,7 @@ public class DoctorPortal extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new DoctorPortal(5).setVisible(true); // '1' for testing
+                new DoctorPortal(1).setVisible(true); // '1' for testing
 
             }
 
