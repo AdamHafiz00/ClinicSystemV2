@@ -88,24 +88,26 @@ public class AdminPanel extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lblWaitingCount = new javax.swing.JLabel();
         lblInTreatmentCount = new javax.swing.JLabel();
+        lblWaitingCount = new javax.swing.JLabel();
         lblCompleteCount = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblDoctors = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jMenuBar1 = new javax.swing.JMenuBar();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        lblWaitingCount.setFont(new java.awt.Font("Georgia", 1, 18)); // NOI18N
-        lblWaitingCount.setText("Waiting : ");
+        jMenuBar2 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        logoutItem = new javax.swing.JMenuItem();
 
         lblInTreatmentCount.setFont(new java.awt.Font("Georgia", 1, 18)); // NOI18N
         lblInTreatmentCount.setForeground(new java.awt.Color(0, 204, 0));
         lblInTreatmentCount.setText("In - treatment : ");
         lblInTreatmentCount.setToolTipText("");
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        lblWaitingCount.setFont(new java.awt.Font("Georgia", 1, 18)); // NOI18N
+        lblWaitingCount.setText("Waiting : ");
 
         lblCompleteCount.setFont(new java.awt.Font("Georgia", 1, 18)); // NOI18N
         lblCompleteCount.setForeground(new java.awt.Color(0, 153, 255));
@@ -137,7 +139,20 @@ public class AdminPanel extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        setJMenuBar(jMenuBar1);
+
+        jMenu1.setText("Action");
+
+        logoutItem.setText("LogOut");
+        logoutItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                logoutItemActionPerformed(evt);
+            }
+        });
+        jMenu1.add(logoutItem);
+
+        jMenuBar2.add(jMenu1);
+
+        setJMenuBar(jMenuBar2);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -146,9 +161,7 @@ public class AdminPanel extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(41, 41, 41)
                 .addComponent(lblWaitingCount)
-                .addGap(121, 121, 121)
-                .addComponent(lblInTreatmentCount)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 160, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(lblCompleteCount)
                 .addGap(62, 62, 62))
             .addGroup(layout.createSequentialGroup()
@@ -160,7 +173,7 @@ public class AdminPanel extends javax.swing.JFrame {
                 .addComponent(jButton1)
                 .addGap(169, 169, 169)
                 .addComponent(jButton2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(177, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -168,9 +181,8 @@ public class AdminPanel extends javax.swing.JFrame {
                 .addGap(19, 19, 19)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblWaitingCount)
-                    .addComponent(lblInTreatmentCount)
                     .addComponent(lblCompleteCount))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 77, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
@@ -188,6 +200,14 @@ public class AdminPanel extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         new AppointmentManagementForm().setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void logoutItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutItemActionPerformed
+       new MainMenu().setVisible(true);
+       dispose();
+        
+
+// TODO add your handling code here:
+    }//GEN-LAST:event_logoutItemActionPerformed
 
     /**
      * @param args the command line arguments
@@ -227,11 +247,13 @@ public class AdminPanel extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar2;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblCompleteCount;
     private javax.swing.JLabel lblInTreatmentCount;
     private javax.swing.JLabel lblWaitingCount;
+    private javax.swing.JMenuItem logoutItem;
     private javax.swing.JTable tblDoctors;
     // End of variables declaration//GEN-END:variables
 }

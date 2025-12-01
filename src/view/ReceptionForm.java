@@ -107,6 +107,7 @@ public class ReceptionForm extends javax.swing.JFrame {
         jLabel8 = new javax.swing.JLabel();
         jDateChooser1 = new com.toedter.calendar.JDateChooser();
         TEST1 = new javax.swing.JLabel();
+        backBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -152,6 +153,13 @@ public class ReceptionForm extends javax.swing.JFrame {
 
         TEST1.setText("jLabel9");
 
+        backBtn.setText("Back");
+        backBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -189,7 +197,9 @@ public class ReceptionForm extends javax.swing.JFrame {
                         .addComponent(comboDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(62, 62, 62))))
             .addGroup(layout.createSequentialGroup()
-                .addGap(179, 179, 179)
+                .addGap(27, 27, 27)
+                .addComponent(backBtn)
+                .addGap(74, 74, 74)
                 .addComponent(btnBook)
                 .addGap(77, 77, 77)
                 .addComponent(TEST1)
@@ -230,7 +240,9 @@ public class ReceptionForm extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnBook)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnBook)
+                            .addComponent(backBtn))
                         .addGap(63, 63, 63))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(TEST1)
@@ -336,6 +348,13 @@ public class ReceptionForm extends javax.swing.JFrame {
             txtAge.setEnabled(true);
         }
     }//GEN-LAST:event_txtICNumberFocusLost
+
+    private void backBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtnActionPerformed
+        new MainMenu().setVisible(true);
+        dispose();
+        
+        
+    }//GEN-LAST:event_backBtnActionPerformed
 // Define your clinic hours here
     private final String[] ALL_SLOTS = {"09:00-10:00", "10:00-11:00", "11:00-12:00", "14:00-15:00", "15:00-16:00"};
 
@@ -404,6 +423,7 @@ public class ReceptionForm extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel TEST1;
+    private javax.swing.JButton backBtn;
     private javax.swing.JButton btnBook;
     private javax.swing.JComboBox<String> cbGender;
     private javax.swing.JComboBox<model.Doctor> comboDoctor;

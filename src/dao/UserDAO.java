@@ -63,8 +63,10 @@ public class UserDAO {
                                         rsDoc.getString("gender"),
                                         rsDoc.getString("contact_info"),
                                         rsDoc.getString("specialization"),
-                                        userLoginId,  // Retrieved from USERS table
-                                        userPassword  // Retrieved from USERS table
+                                       // Pass the authentication/user data (from users table, used by the User interface methods)
+                                        userLoginId,                        // Login ID
+                                        userPassword,                       // Password
+                                        role                                // Role ("Doctor")
                                     );
                                 }
                             }

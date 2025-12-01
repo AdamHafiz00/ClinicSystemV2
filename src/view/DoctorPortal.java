@@ -64,6 +64,8 @@ public class DoctorPortal extends javax.swing.JFrame {
             tblPatients.setRowSelectionInterval(0, 0);
         }
     }
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -80,6 +82,9 @@ public class DoctorPortal extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         txtDiagnosis = new javax.swing.JTextArea();
         btnUpdate = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        logoutItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -109,6 +114,20 @@ public class DoctorPortal extends javax.swing.JFrame {
             }
         });
 
+        jMenu1.setText("Action");
+
+        logoutItem.setText("LogOut");
+        logoutItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                logoutItemActionPerformed(evt);
+            }
+        });
+        jMenu1.add(logoutItem);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -136,7 +155,7 @@ public class DoctorPortal extends javax.swing.JFrame {
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnUpdate)
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -175,9 +194,14 @@ public class DoctorPortal extends javax.swing.JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
-        }
+        } 
 
     }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void logoutItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutItemActionPerformed
+    new MainMenu().setVisible(true);
+    dispose();
+    }//GEN-LAST:event_logoutItemActionPerformed
 
     /**
      * @param args the command line arguments
@@ -221,8 +245,11 @@ public class DoctorPortal extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnUpdate;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JMenuItem logoutItem;
     private javax.swing.JTable tblPatients;
     private javax.swing.JTextArea txtDiagnosis;
     // End of variables declaration//GEN-END:variables

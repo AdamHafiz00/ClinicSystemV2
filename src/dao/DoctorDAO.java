@@ -29,11 +29,10 @@ public class DoctorDAO {
                 String gender = rs.getString("gender");
                 String contact_info = rs.getString("contact_info");
                 String specialization = rs.getString("specialization");
-                String loginId = rs.getString("login_id");
-                String password = rs.getString("password");
+
 
                 // Create a Doctor object and add to list
-                list.add(new Doctor(id, name, age, gender, contact_info, specialization, loginId, password));
+                list.add(new Doctor(id, name, age, gender, contact_info, specialization));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -41,34 +40,6 @@ public class DoctorDAO {
         return list;
     }
 
-    public model.Doctor login(String loginId, String password) {
-        String sql = "SELECT * FROM doctors WHERE login_id = ? AND password = ?";
-
-        try (java.sql.Connection conn = database.DatabaseConnection.getInstance().getConnection(); java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, loginId);
-            stmt.setString(2, password);
-
-            java.sql.ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return new model.Doctor(
-                        rs.getInt("doctor_id"),
-                        rs.getString("name"),
-                        rs.getInt("age"),
-                        rs.getString("gender"),
-                        rs.getString("contact_info"),
-                        rs.getString("specialization"),
-                        rs.getString("login_id"),
-                        rs.getString("password")
-                );
-            }
-
-        } catch (java.sql.SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     public void addDoctorWithCredentials(String name, String specialization, String password) throws java.sql.SQLException {
         java.sql.Connection conn = null;
@@ -154,7 +125,7 @@ public class DoctorDAO {
 
         // SQL query to insert doctor details. Note: You must ensure your 'doctors' table 
         // includes columns for all inherited fields (name, age, gender, contact_info).
-        String sql = "INSERT INTO doctors (name, age, gender, contact_info, specialization, login_id, password) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO doctors (name, age, gender, contact_info, specialization) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection(); // Use RETURN_GENERATED_KEYS to get the new doctor_id
                  PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -165,8 +136,7 @@ public class DoctorDAO {
             stmt.setString(3, doctor.getGender());
             stmt.setString(4, doctor.getContactInfo());
             stmt.setString(5, doctor.getSpecialization());
-            stmt.setString(6, doctor.getPassword());
-            stmt.setString(7, doctor.getLoginId());
+
 
             int rowsAffected = stmt.executeUpdate();
 
@@ -194,7 +164,7 @@ public class DoctorDAO {
      */
     public boolean updateDoctor(Doctor doctor) {
         // NOTE: We update all editable fields except the auto-increment ID
-        String sql = "UPDATE doctors SET name = ?, age = ?, gender = ?, contact_info = ?, specialization = ?, password = ?, login_id = ? WHERE doctor_id = ?";
+        String sql = "UPDATE doctors SET name = ?, age = ?, gender = ?, contact_info = ?, specialization = ? WHERE doctor_id = ?";
         
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -205,8 +175,7 @@ public class DoctorDAO {
             stmt.setString(3, doctor.getGender());
             stmt.setString(4, doctor.getContactInfo());
             stmt.setString(5, doctor.getSpecialization());
-            stmt.setString(6, doctor.getPassword());
-            stmt.setString(7, doctor.getLoginId());
+
             
             // 2. Set the WHERE clause condition (ID of the doctor to update)
             stmt.setInt(8, doctor.getId()); 

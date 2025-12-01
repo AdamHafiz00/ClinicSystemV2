@@ -45,8 +45,7 @@ public class DoctorManagementForm extends javax.swing.JFrame {
                     d.getGender(),
                     d.getContactInfo(),
                     d.getSpecialization(),
-                    d.getLoginId(),
-                    d.getPassword() // Displaying password (optional, good for admin management)
+                    
                 });
             }
             tblDoctors.setModel(model);
@@ -81,7 +80,7 @@ public class DoctorManagementForm extends javax.swing.JFrame {
         String pass = txtPassword.getText().trim();
         String login = txtLoginId.getText().trim();
 
-        return new Doctor(id, name, age, gender, contact, spec, pass, login);
+        return new Doctor(id, name, age, gender, contact, spec);
     }
 
     private boolean validateInputs() {
