@@ -50,7 +50,7 @@ public class AppointmentDAO {
      */
     public Set<String> getBookedTimeSlots(int doctorId, String dateText) {
         Set<String> busySlots = new HashSet<>();
-        String sql = "SELECT time_slot FROM appointments WHERE doctor_id = ? AND appointment_date = ? AND status = 'Booked'";
+        String sql = "SELECT time_slot FROM appointments WHERE doctor_id = ? AND appointment_date = ? AND status IN ('waiting', 'in-treatment')";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 

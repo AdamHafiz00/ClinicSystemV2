@@ -8,7 +8,10 @@ package view;
  *
  * @author Adam
  */
+import com.toedter.calendar.JDateChooser;
 import controller.ReceptionistController;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ReceptionForm extends javax.swing.JFrame {
 
@@ -20,7 +23,33 @@ public class ReceptionForm extends javax.swing.JFrame {
     public ReceptionForm() {
         initComponents();
         loadDoctors();
+        setupListeners();
     }
+    
+    private void setupListeners() {
+    // 1. Listener for Doctor Dropdown Change
+    comboDoctor.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            // Call the method every time a different doctor is selected
+            updateAvailableSlots(); 
+        }
+    });
+
+    // 2. Listener for Date Chooser Change
+    // We listen for the "date" property change, which fires when the user picks a date.
+    jDateChooser1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+        public void propertyChange(java.beans.PropertyChangeEvent evt) {
+            if ("date".equals(evt.getPropertyName())) {
+                // Call the method every time the date value changes
+                updateAvailableSlots();
+            }
+        }
+    });
+    
+    // Initial call to load slots when the form first opens
+    // (This is important in case the initial doctor/date selection is valid)
+    updateAvailableSlots(); 
+}
 
     // Helper method to fill the dropdown
     private void loadDoctors() {
@@ -32,6 +61,24 @@ public class ReceptionForm extends javax.swing.JFrame {
             comboDoctor.addItem(d);
         }
     }
+    
+    public String convertDateChooserToString(com.toedter.calendar.JDateChooser dateChooser) {
+    // 1. Get the Date object
+    Date date = dateChooser.getDate(); 
+
+    // 2. Check for null before formatting (as previously discussed)
+    if (date == null) {
+        // You can return null or an empty string, depending on your database needs.
+        // Returning null is safer if the database column allows nulls.
+        return null; 
+    }
+
+    // 3. Define the desired format (YYYY-MM-DD is standard for SQL)
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+    // 4. Format and return the string
+    return formatter.format(date);
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -53,12 +100,13 @@ public class ReceptionForm extends javax.swing.JFrame {
         btnBook = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         txtICNumber = new javax.swing.JTextField();
-        txtAppointmentDate = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         cbGender = new javax.swing.JComboBox<>();
         jLabel7 = new javax.swing.JLabel();
         txtContact_info = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
+        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        TEST1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -94,13 +142,6 @@ public class ReceptionForm extends javax.swing.JFrame {
             }
         });
 
-        txtAppointmentDate.setText("YYYY-MM-DD");
-        txtAppointmentDate.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                txtAppointmentDateFocusLost(evt);
-            }
-        });
-
         jLabel6.setText("Gender :");
 
         cbGender.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female" }));
@@ -108,6 +149,8 @@ public class ReceptionForm extends javax.swing.JFrame {
         jLabel7.setText("Contact Info : ");
 
         jLabel8.setText("Appointment Date : ");
+
+        TEST1.setText("jLabel9");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -122,29 +165,34 @@ public class ReceptionForm extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(jLabel8)
                     .addComponent(jLabel4))
-                .addGap(9, 42, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(txtICNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(29, 29, 29)
-                            .addComponent(jLabel6)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(txtName))
-                    .addComponent(txtContact_info, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(9, 20, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(txtAppointmentDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(txtICNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(29, 29, 29)
+                                    .addComponent(jLabel6)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(txtName))
+                            .addComponent(txtContact_info, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(comboTimeSlot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(190, 190, 190))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(comboDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(comboTimeSlot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(124, 124, 124))
+                        .addComponent(comboDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(62, 62, 62))))
             .addGroup(layout.createSequentialGroup()
                 .addGap(179, 179, 179)
                 .addComponent(btnBook)
+                .addGap(77, 77, 77)
+                .addComponent(TEST1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -169,18 +217,24 @@ public class ReceptionForm extends javax.swing.JFrame {
                     .addComponent(jLabel7)
                     .addComponent(txtContact_info, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtAppointmentDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel8)
-                    .addComponent(jLabel3)
-                    .addComponent(comboDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel8)
+                        .addComponent(jLabel3)
+                        .addComponent(comboDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jDateChooser1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(comboTimeSlot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(btnBook)
-                .addGap(63, 63, 63))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnBook)
+                        .addGap(63, 63, 63))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(TEST1)
+                        .addGap(55, 55, 55))))
         );
 
         pack();
@@ -198,9 +252,11 @@ public class ReceptionForm extends javax.swing.JFrame {
         String gender = cbGender.getSelectedItem().toString();
         String contact_info = txtContact_info.getText();
         String icNumber = txtICNumber.getText().trim();
-        String dateText = txtAppointmentDate.getText().trim(); // New required field
+ 
+        // Get the date string:
+        String appointmentDate = convertDateChooserToString(jDateChooser1);
 
-        if (name.isEmpty() || age.isEmpty() || contact_info.isEmpty() || icNumber.isEmpty() || dateText.isEmpty()) {
+        if (name.isEmpty() || age.isEmpty() || contact_info.isEmpty() || icNumber.isEmpty() || appointmentDate == null) {
             javax.swing.JOptionPane.showMessageDialog(this, "Please fill all fields!");
             return;
         }
@@ -223,7 +279,7 @@ public class ReceptionForm extends javax.swing.JFrame {
             contact_info, 
             "Checkup", // Assuming a default diagnosis for quick booking
             selectedDoc, 
-            dateText, 
+            appointmentDate, 
             timeSlot
         );
 
@@ -280,21 +336,19 @@ public class ReceptionForm extends javax.swing.JFrame {
             txtAge.setEnabled(true);
         }
     }//GEN-LAST:event_txtICNumberFocusLost
-
-    private void txtAppointmentDateFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtAppointmentDateFocusLost
-        updateAvailableSlots();
-    }//GEN-LAST:event_txtAppointmentDateFocusLost
 // Define your clinic hours here
     private final String[] ALL_SLOTS = {"09:00-10:00", "10:00-11:00", "11:00-12:00", "14:00-15:00", "15:00-16:00"};
 
     private void updateAvailableSlots() {
         try {
-            if (comboDoctor.getSelectedItem() == null || txtAppointmentDate.getText().isEmpty()) {
+            if (comboDoctor.getSelectedItem() == null || convertDateChooserToString(jDateChooser1) == null) {
                 return;
             }
 
             model.Doctor selectedDoc = (model.Doctor) comboDoctor.getSelectedItem();
-            String dateText = txtAppointmentDate.getText().trim();
+            String dateText = convertDateChooserToString(jDateChooser1);
+            
+            TEST1.setText(dateText);
 
             // 3. Get BUSY slots from DB (Call the Controller!)
             java.util.Set<String> busySlots = controller.getBusySlots(selectedDoc.getId(), dateText);
@@ -349,10 +403,12 @@ public class ReceptionForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel TEST1;
     private javax.swing.JButton btnBook;
     private javax.swing.JComboBox<String> cbGender;
     private javax.swing.JComboBox<model.Doctor> comboDoctor;
     private javax.swing.JComboBox<String> comboTimeSlot;
+    private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -362,7 +418,6 @@ public class ReceptionForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JTextField txtAge;
-    private javax.swing.JTextField txtAppointmentDate;
     private javax.swing.JTextField txtContact_info;
     private javax.swing.JTextField txtICNumber;
     private javax.swing.JTextField txtName;
