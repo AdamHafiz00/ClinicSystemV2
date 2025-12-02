@@ -30,28 +30,27 @@ public class AdminController {
         // Define the statuses we need to count
         final String PENDING = "Waiting";
         final String IN_TREATMENT = "In-treatment";
-        final String COMPLETE = "Complete";
+        final String COMPLETE = "Completed";
 
         // Use the DAO method to fetch the counts (Assuming patientDAO has countPatientsByStatus)
         // Note: You must ensure patientDAO.countPatientsByStatus exists or remove this logic if not yet implemented.
-
-
         // Add the counts to the map
-        stats.put("Waiting",  patientDAO.countPatientsByStatus(PENDING));
-        stats.put("In-treatment",  patientDAO.countPatientsByStatus(IN_TREATMENT));
-        stats.put("Complete", patientDAO.countPatientsByStatus(COMPLETE));
+        stats.put("Waiting", patientDAO.countPatientsByStatus(PENDING));
+        stats.put("In-treatment", patientDAO.countPatientsByStatus(IN_TREATMENT));
+        stats.put("Completed", patientDAO.countPatientsByStatus(COMPLETE));
 
         return stats;
     }
 
-    // --- Doctor Management Methods ---
+    // --- Doctor Management Methods ---s
     public List<Doctor> getAllDoctors() {
         // You must add 'throws Exception' if doctorDAO.getAllDoctors() throws an exception
         return doctorDAO.getAllDoctors();
     }
 
     public boolean addDoctor(Doctor doctor) {
-        return doctorDAO.addDoctor(doctor) > 0;
+        // The DAO method returns 'true' on success, so just return it directly.
+        return doctorDAO.addDoctor(doctor);
     }
 
     public boolean updateDoctor(Doctor doctor) {
@@ -70,6 +69,8 @@ public class AdminController {
         return doctorDAO.deleteDoctor(doctorId);
     }
 
+
+
     /**
      * Retrieves full appointment details, filtered by doctor, date, and time.
      * FIX: Method name corrected to match DAO (getViewAppointments). FIX: Added
@@ -87,12 +88,13 @@ public class AdminController {
     public boolean cancelAppointment(int appointmentId) {
         return appointmentDAO.deleteAppointment(appointmentId);
     }
-    
+
     public java.util.List<java.util.Map<String, Object>> getInTreatmentAppointmentsForAdmin() throws Exception {
-    // Assuming you have an instance of AppointmentDAO available
-    dao.AppointmentDAO appointmentDAO = new dao.AppointmentDAO(); 
-    
-    // Calls the DAO method we prepared in the previous step
-    return appointmentDAO.getInTreatmentAppointments(); 
-}
+        // Assuming you have an instance of AppointmentDAO available
+        dao.AppointmentDAO appointmentDAO = new dao.AppointmentDAO();
+
+        // Calls the DAO method we prepared in the previous step
+        return appointmentDAO.getInTreatmentAppointments();
+    }
+
 }

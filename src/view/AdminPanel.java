@@ -69,8 +69,8 @@ public class AdminPanel extends javax.swing.JFrame {
             if (stats.containsKey("In-treatment")) {
                 lblInTreatmentCount2.setText("In-Treatment : " + String.valueOf(stats.get("In-treatment")));
             }
-            if (stats.containsKey("Complete")) {
-                lblCompleteCount.setText("Completed :" + String.valueOf(stats.get("Complete")));
+            if (stats.containsKey("Completed")) {
+                lblCompleteCount.setText("Completed :" + String.valueOf(stats.get("Completed")));
             }
 
         } catch (Exception e) {
@@ -96,6 +96,7 @@ public class AdminPanel extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         lblInTreatmentCount2 = new javax.swing.JLabel();
+        btnCompleteAppointment = new javax.swing.JButton();
         jMenuBar2 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         logoutItem = new javax.swing.JMenuItem();
@@ -116,13 +117,13 @@ public class AdminPanel extends javax.swing.JFrame {
 
         tblDoctors.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "ID", "Name", "Specialization", "Age", "Contact", "Login ID"
+                "IDAppointment ID", "Patient Name", "Diagnosis", "Status"
             }
         ));
         jScrollPane2.setViewportView(tblDoctors);
@@ -144,6 +145,13 @@ public class AdminPanel extends javax.swing.JFrame {
         lblInTreatmentCount2.setFont(new java.awt.Font("Georgia", 1, 18)); // NOI18N
         lblInTreatmentCount2.setForeground(new java.awt.Color(0, 204, 51));
         lblInTreatmentCount2.setText("In Treatment");
+
+        btnCompleteAppointment.setText("Complete");
+        btnCompleteAppointment.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCompleteAppointmentActionPerformed(evt);
+            }
+        });
 
         jMenu1.setText("Action");
 
@@ -181,6 +189,10 @@ public class AdminPanel extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton3)
                 .addGap(135, 135, 135))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnCompleteAppointment)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -190,13 +202,15 @@ public class AdminPanel extends javax.swing.JFrame {
                     .addComponent(lblWaitingCount)
                     .addComponent(lblCompleteCount)
                     .addComponent(lblInTreatmentCount2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 104, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton3))
-                .addGap(53, 53, 53)
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 327, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnCompleteAppointment)
+                .addGap(24, 24, 24))
         );
 
         pack();
@@ -208,18 +222,60 @@ public class AdminPanel extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void logoutItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutItemActionPerformed
-       new MainMenu().setVisible(true);
-       dispose();
-        
+        new MainMenu().setVisible(true);
+        dispose();
 
 // TODO add your handling code here:
     }//GEN-LAST:event_logoutItemActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-    new DoctorManagementForm().setVisible(true);         
-    dispose();  
-        
+        new DoctorManagementForm().setVisible(true);
+        dispose();
+
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void btnCompleteAppointmentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompleteAppointmentActionPerformed
+        // 1. Get the selected row index
+        int selectedRow = tblDoctors.getSelectedRow();
+
+        if (selectedRow == -1) {
+            // No row selected
+            javax.swing.JOptionPane.showMessageDialog(this, "Please select an appointment from the table to complete.", "Selection Required", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            // 2. Retrieve the Appointment ID from the selected row.
+            // The Appointment ID is in the first column (index 0). 
+            // We cast it to Integer, as it was added as an Integer object to the model.
+            Integer appointmentId = (Integer) tblDoctors.getValueAt(selectedRow, 0);
+
+            // Confirmation dialog for the Admin
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(this,
+                    "Are you sure you want to mark Appointment ID " + appointmentId + " as Completed?",
+                    "Confirm Completion", javax.swing.JOptionPane.YES_NO_OPTION);
+
+            if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+                // 3. Call the DAO method to update the status to "Completed"
+                dao.AppointmentDAO appointmentDAO = new dao.AppointmentDAO(); // Re-initialize or use your existing instance
+                boolean success = appointmentDAO.updateAppointmentStatus(appointmentId, "Completed");
+
+                if (success) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Appointment " + appointmentId + " successfully marked as Completed.");
+                    // 4. Refresh the table to show the updated list (the row should disappear if loadDoctorTable() filters for 'in-treatment')
+                    loadDoctorTable();
+                    updateDashboardStats();
+                } else {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Failed to complete appointment.", "Database Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error processing completion: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+
+// TODO add your handling code here:
+    }//GEN-LAST:event_btnCompleteAppointmentActionPerformed
 
     /**
      * @param args the command line arguments
@@ -257,6 +313,7 @@ public class AdminPanel extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCompleteAppointment;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
     private javax.swing.JMenu jMenu1;

@@ -17,16 +17,16 @@ public class StaffUser implements User {
     private int loginIdPk;
     private String username;
     private String password;
-    private String role; // Stores "Admin" or "Receptionist"
-    private String loginId; // Stores A001, R001, etc.
+    private String role;
+        private String loginId; // Stores A001, R001, etc.
 
     // Constructor to match the fields in the 'users' table
-    public StaffUser(int loginIdPk, String username, String password, String role, String loginId) {
+    public StaffUser(int loginIdPk, String username, String password, String loginId,String role) {
         this.loginIdPk = loginIdPk;
         this.username = username;
         this.password = password;
-        this.role = role;
-        this.loginId = loginId;
+         this.loginId = loginId;
+         this.role = role;
     }
 
     // --- Implementation of the User interface ---
@@ -41,12 +41,13 @@ public class StaffUser implements User {
         return password;
     }
 
-    @Override
-    public String getRole() {
-        return role;
-    }
+
 
     public String getUsername()
     {return username;
+    }
+    
+    public String getRole(){
+        return role;
     }
 }

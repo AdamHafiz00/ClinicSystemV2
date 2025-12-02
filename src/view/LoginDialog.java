@@ -122,9 +122,6 @@ public class LoginDialog extends javax.swing.JFrame {
             if (role.equals("Admin")) {
                 new view.AdminPanel().setVisible(true);
 
-            } else if (role.equals("Receptionist")) {
-                new view.ReceptionForm().setVisible(true); // Assuming Receptionist opens the booking form
-
             } else if (role.equals("Doctor")) {
                 // Since the Doctor model implements User, we can safely cast and get the ID
                 model.Doctor loggedInDoctor = (model.Doctor) authenticatedUser;

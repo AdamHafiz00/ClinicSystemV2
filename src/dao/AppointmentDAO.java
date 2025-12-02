@@ -209,7 +209,7 @@ public class AppointmentDAO {
                 + "JOIN patients p ON a.patient_id = p.patient_id "
                 + "WHERE a.doctor_id = ? "
                 + "AND a.appointment_date = DATE(NOW()) " // Filter for today
-                + "AND a.status IN ('waiting', 'in-treatment') " // Filter for active statuses
+                + "AND a.status = 'waiting' " // Filter for active statuses
                 + "ORDER BY a.time_slot ASC";
 
         try (java.sql.Connection conn = database.DatabaseConnection.getInstance().getConnection(); java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -239,7 +239,8 @@ public class AppointmentDAO {
         String sql = "SELECT a.appointment_id, p.name AS patient_name, a.diagnosis, a.status "
                 + "FROM appointments a "
                 + "JOIN patients p ON a.patient_id = p.patient_id "
-                + "WHERE a.status = 'in-treatment' "
+                + "WHERE a.status IN ( 'in-treatment','waiting' )"
+                + "AND a.appointment_date = DATE(NOW()) "
                 + "ORDER BY a.appointment_date, a.time_slot";
 
         try (java.sql.Connection conn = database.DatabaseConnection.getInstance().getConnection(); java.sql.PreparedStatement stmt = conn.prepareStatement(sql); java.sql.ResultSet rs = stmt.executeQuery()) {
@@ -254,5 +255,22 @@ public class AppointmentDAO {
             }
         }
         return appointmentList;
+    }
+
+    public boolean updateAppointmentStatus(int appointmentId, String newStatus) {
+        String sql = "UPDATE appointments SET status = ? WHERE appointment_id = ?";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, newStatus);
+            stmt.setInt(2, appointmentId);
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error updating appointment status: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 }

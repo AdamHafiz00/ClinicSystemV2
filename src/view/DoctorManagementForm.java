@@ -25,6 +25,8 @@ public class DoctorManagementForm extends javax.swing.JFrame {
      */
     public DoctorManagementForm() {
         initComponents();
+        txtLoginId.setEditable(false); // <--- Add this line!
+        txtLoginId.setText("Auto-Generated"); // Placeholder text
         loadDoctorTable();
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
     }
@@ -32,7 +34,7 @@ public class DoctorManagementForm extends javax.swing.JFrame {
     private void loadDoctorTable() {
         DefaultTableModel model = new DefaultTableModel();
         // Define columns exactly as we planned
-        model.setColumnIdentifiers(new Object[]{"ID", "Name", "Age", "Gender", "Contact", "Specialization"});
+        model.setColumnIdentifiers(new Object[]{"ID", "Name", "Age", "Gender", "Contact", "Specialization", "login ID", "Password"});
 
         try {
             List<Doctor> doctors = controller.getAllDoctors();
@@ -45,7 +47,8 @@ public class DoctorManagementForm extends javax.swing.JFrame {
                     d.getGender(),
                     d.getContactInfo(),
                     d.getSpecialization(),
-                    
+                    d.getLoginId(),
+                    d.getPassword()
                 });
             }
             tblDoctors.setModel(model);
@@ -60,13 +63,15 @@ public class DoctorManagementForm extends javax.swing.JFrame {
         txtAge.setText("");
         txtContact.setText("");
         txtSpecialization.setText("");
+        txtPassword.setText("");
+        txtLoginId.setText("");
+
         selectedDoctorId = -1;
         tblDoctors.clearSelection();
 
         btnAdd.setEnabled(true);
         btnUpdate.setEnabled(false);
         btnDelete.setEnabled(false);
-
     }
 
     private Doctor createDoctorFromInputs(int id) {
@@ -75,22 +80,39 @@ public class DoctorManagementForm extends javax.swing.JFrame {
         String gender = cbGender.getSelectedItem().toString();
         String contact = txtContact.getText().trim();
         String spec = txtSpecialization.getText().trim();
+        String loginId = txtLoginId.getText().trim();
+        String password = txtPassword.getText().trim();
+        String role = "Doctor";
 
-
-        return new Doctor(id, name, age, gender, contact, spec);
+        return new Doctor(id, name, age, gender, contact, spec, role,loginId, password);
     }
 
     private boolean validateInputs() {
-        if (txtName.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill all required fields (Name).");
+        // 1. Validate Profile Fields (Always required)
+        if (txtName.getText().isEmpty() || txtSpecialization.getText().isEmpty()
+                || txtContact.getText().isEmpty() || txtAge.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill all profile fields (Name, Age, Gender, Contact, Specialization).");
             return false;
         }
+
+        // 2. Validate Age is a number
         try {
             Integer.parseInt(txtAge.getText().trim());
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Age must be a number.");
+            JOptionPane.showMessageDialog(this, "Age must be a valid number.");
             return false;
         }
+
+        // 3. Validate Login fields ONLY IF adding a new doctor OR explicitly updating credentials (which we'll handle later).
+        if (selectedDoctorId == -1) {
+            if (txtLoginId.getText().isEmpty() || new String(txtPassword.getPassword()).isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please provide a Login ID and Password for the new Doctor registration.");
+                return false;
+            }
+        }
+
+        // If updating, we allow the Login/Password fields to be empty if the user doesn't want to change them, 
+        // BUT we must retrieve the original values for the update. We handle this in btnUpdateActionPerformed.
         return true;
     }
 
@@ -120,6 +142,10 @@ public class DoctorManagementForm extends javax.swing.JFrame {
         btnUpdate = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
         btnClear = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        txtLoginId = new javax.swing.JTextField();
+        txtPassword = new javax.swing.JPasswordField();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -135,13 +161,13 @@ public class DoctorManagementForm extends javax.swing.JFrame {
 
         tblDoctors.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "ID", "Name", "Specialization", "Contact", "Status"
+                "ID", "Name", "Specialization", "Contact", "Status", "LoginId", "Password"
             }
         ));
         tblDoctors.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -193,6 +219,10 @@ public class DoctorManagementForm extends javax.swing.JFrame {
             }
         });
 
+        jLabel9.setText("LoginId : ");
+
+        jLabel10.setText("Password : ");
+
         jMenu1.setText("Action");
 
         jMenuItem1.setText("Admin Menu");
@@ -241,17 +271,27 @@ public class DoctorManagementForm extends javax.swing.JFrame {
                                             .addComponent(txtSpecialization))))
                                 .addGap(35, 35, 35)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel7)
-                                    .addComponent(jLabel6))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel7)
+                                            .addComponent(jLabel6))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel9)
+                                            .addComponent(jLabel10))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(txtLoginId, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(28, 28, 28)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 765, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(119, 119, 119)
+                        .addGap(120, 120, 120)
                         .addComponent(btnAdd)
                         .addGap(18, 18, 18)
                         .addComponent(btnUpdate)
@@ -284,14 +324,20 @@ public class DoctorManagementForm extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(txtContact, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtContact, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9)
+                    .addComponent(txtLoginId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAdd)
                     .addComponent(btnUpdate)
                     .addComponent(btnDelete)
                     .addComponent(btnClear))
-                .addContainerGap(218, Short.MAX_VALUE))
+                .addContainerGap(190, Short.MAX_VALUE))
         );
 
         pack();
@@ -303,31 +349,52 @@ public class DoctorManagementForm extends javax.swing.JFrame {
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         if (validateInputs()) {
-            Doctor d = createDoctorFromInputs(-1); // ID is -1 for new
+            Doctor d = createDoctorFromInputs(-1);
+
+            // 2. Call Controller with the Doctor object ONLY
             if (controller.addDoctor(d)) {
-                JOptionPane.showMessageDialog(this, "Doctor Added Successfully!");
+                javax.swing.JOptionPane.showMessageDialog(this, "Doctor and Login Account Added successfully!");
                 loadDoctorTable();
                 clearFields();
             } else {
-                JOptionPane.showMessageDialog(this, "Failed to add doctor. Check Login ID uniqueness.");
+                javax.swing.JOptionPane.showMessageDialog(this, "Failed to register. Login ID may be taken.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
             }
+
         }    }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        // 1. Check if a row is selected
         if (selectedDoctorId == -1) {
             JOptionPane.showMessageDialog(this, "Select a doctor first!");
             return;
         }
 
-        if (validateInputs()) {
-            Doctor d = createDoctorFromInputs(selectedDoctorId); // Use selected ID
-            if (controller.updateDoctor(d)) {
-                JOptionPane.showMessageDialog(this, "Doctor Updated Successfully!");
+        // 2. Validate Inputs
+        // (This checks Name, Spec, Contact, Age, AND Password based on your validateInputs update)
+        if (!validateInputs()) {
+            return;
+        }
+
+        try {
+            // 3. Create the Doctor object
+            // This gathers Name, Age, Spec, Contact AND the LoginID/Password from the text fields
+            Doctor d = createDoctorFromInputs(selectedDoctorId);
+
+            // 4. Update Database (Single call updates Profile AND Credentials)
+            boolean success = controller.updateDoctor(d);
+
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Doctor Details and Credentials Updated Successfully!");
                 loadDoctorTable();
                 clearFields();
             } else {
-                JOptionPane.showMessageDialog(this, "Update Failed.");
+                JOptionPane.showMessageDialog(this, "Update Failed. Login ID might already be taken.", "Error", JOptionPane.ERROR_MESSAGE);
             }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "An error occurred during update: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+
         }    }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
@@ -352,22 +419,27 @@ public class DoctorManagementForm extends javax.swing.JFrame {
     }//GEN-LAST:event_btnClearActionPerformed
 
     private void tblDoctorsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDoctorsMouseClicked
+
         int row = tblDoctors.getSelectedRow();
         if (row != -1) {
-            // Get data from table model
+            // 1. Get ID (Hidden/First Column)
             selectedDoctorId = (int) tblDoctors.getValueAt(row, 0);
+
+            // 2. Populate Standard Profile Fields
             txtName.setText((String) tblDoctors.getValueAt(row, 1));
             txtAge.setText(String.valueOf(tblDoctors.getValueAt(row, 2)));
             cbGender.setSelectedItem((String) tblDoctors.getValueAt(row, 3));
             txtContact.setText((String) tblDoctors.getValueAt(row, 4));
             txtSpecialization.setText((String) tblDoctors.getValueAt(row, 5));
+            txtLoginId.setText((String) tblDoctors.getValueAt(row, 6));
+            txtPassword.setText((String) tblDoctors.getValueAt(row, 7));
 
-
-            // Disable Login ID editing if you want to prevent changing it, or leave enabled
-            // txtLoginId.setEditable(false); 
-            btnAdd.setEnabled(false); // Disable Add button while editing
+            // 5. Update Button States
+            btnAdd.setEnabled(false); // Can't register while editing
             btnUpdate.setEnabled(true);
             btnDelete.setEnabled(true);
+
+
         }    }//GEN-LAST:event_tblDoctorsMouseClicked
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
@@ -426,11 +498,13 @@ public class DoctorManagementForm extends javax.swing.JFrame {
     private javax.swing.JButton btnUpdate;
     private javax.swing.JComboBox<String> cbGender;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
@@ -439,7 +513,9 @@ public class DoctorManagementForm extends javax.swing.JFrame {
     private javax.swing.JTable tblDoctors;
     private javax.swing.JTextField txtAge;
     private javax.swing.JTextField txtContact;
+    private javax.swing.JTextField txtLoginId;
     private javax.swing.JTextField txtName;
+    private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextField txtSpecialization;
     // End of variables declaration//GEN-END:variables
 }

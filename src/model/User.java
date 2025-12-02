@@ -19,6 +19,7 @@ public interface User {
     
     String getPassword();
     
-    // An optional method to determine the entity's role (helpful for routing after login)
-    String getRole(); 
+    String getRole();
+    
+
 }

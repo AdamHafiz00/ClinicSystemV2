@@ -15,70 +15,64 @@ import java.sql.SQLException;
 
 public class UserDAO {
 
+    // Inside dao.UserDAO.java
     public User getUserByCredentials(String loginId, String password) {
-        
-        // --- 1. AUTHENTICATE against the centralized USERS table ---
-        String sqlAuth = "SELECT login_id_pk, username, password, role, login_id "
-                       + "FROM users WHERE login_id = ? AND password = ?";
-        
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement stmtAuth = conn.prepareStatement(sqlAuth)) {
+        User user = null;
 
-            stmtAuth.setString(1, loginId);
-            stmtAuth.setString(2, password);
+        // --- 1. Check DOCTORS Table First ---
+        // Since doctors have their own login info in their own table now
+        String sqlDoctor = "SELECT * FROM doctors WHERE login_id = ? AND password = ?";
 
-            try (ResultSet rsAuth = stmtAuth.executeQuery()) {
-                if (rsAuth.next()) {
-                    
-                    // Valid credentials found. Extract USERS table data.
-                    int userIdPk = rsAuth.getInt("login_id_pk");
-                    String username = rsAuth.getString("username");
-                    String userPassword = rsAuth.getString("password");
-                    String role = rsAuth.getString("role");
-                    String userLoginId = rsAuth.getString("login_id");
+        try (Connection conn = DatabaseConnection.getInstance().getConnection(); PreparedStatement stmtDoc = conn.prepareStatement(sqlDoctor)) {
 
-                    // --- 2. BRANCH based on ROLE ---
-                    if (role.equals("Admin") || role.equals("Receptionist")) {
-                        // StaffUser data is complete from the USERS table
-                        return new StaffUser(userIdPk, username, userPassword, role, userLoginId);
-                    
-                    } else if (role.equals("Doctor")) {
-                        
-                        // --- 3. DOCTOR: Fetch specific details using the Primary Key (userIdPk) ---
-                        
-                        // Assuming you added a FK column named 'user_login_pk_fk' to the doctors table.
-                        String sqlDoctorDetails = "SELECT doctor_id, name, specialization, age, gender, contact_info "
-                                                + "FROM doctors WHERE user_login_pk = ?"; 
-                        
-                        try (PreparedStatement stmtDoctor = conn.prepareStatement(sqlDoctorDetails)) {
-                            stmtDoctor.setInt(1, userIdPk); // Use the integer Primary Key for lookup
-                            
-                            try (ResultSet rsDoc = stmtDoctor.executeQuery()) {
-                                if (rsDoc.next()) {
-                                    // Found all Doctor details!
-                                    return new Doctor(
-                                        rsDoc.getInt("doctor_id"),
-                                        rsDoc.getString("name"),
-                                        rsDoc.getInt("age"),
-                                        rsDoc.getString("gender"),
-                                        rsDoc.getString("contact_info"),
-                                        rsDoc.getString("specialization"),
-                                       // Pass the authentication/user data (from users table, used by the User interface methods)
-                                        userLoginId,                        // Login ID
-                                        userPassword,                       // Password
-                                        role                                // Role ("Doctor")
-                                    );
-                                }
-                            }
-                        }
-                    }
+            stmtDoc.setString(1, loginId);
+            stmtDoc.setString(2, password);
+
+            try (ResultSet rsDoc = stmtDoc.executeQuery()) {
+                if (rsDoc.next()) {
+                    // Found a Doctor!
+                    return new Doctor(
+                            rsDoc.getInt("doctor_id"),
+                            rsDoc.getString("name"),
+                            rsDoc.getInt("age"),
+                            rsDoc.getString("gender"),
+                            rsDoc.getString("contact_info"),
+                            rsDoc.getString("specialization"),
+                            rsDoc.getString("role"),
+                            rsDoc.getString("login_id"),
+                            rsDoc.getString("password")
+                    );
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Database error during user login check:");
             e.printStackTrace();
         }
-        
-        return null; 
+
+        // --- 2. Check USERS Table (for Admin/Receptionist) ---
+        // If not found in doctors, check the users table
+        String sqlStaff = "SELECT * FROM users WHERE login_id = ? AND password = ?";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection(); PreparedStatement stmtStaff = conn.prepareStatement(sqlStaff)) {
+
+            stmtStaff.setString(1, loginId);
+            stmtStaff.setString(2, password);
+
+            try (ResultSet rsStaff = stmtStaff.executeQuery()) {
+                if (rsStaff.next()) {
+                    // Found Staff!
+                    return new StaffUser(
+                            rsStaff.getInt("login_id_pk"),
+                            rsStaff.getString("username"),
+                            rsStaff.getString("password"),
+                            rsStaff.getString("login_id"),
+                            rsStaff.getString("role")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null; // Not found in either table
     }
 }
