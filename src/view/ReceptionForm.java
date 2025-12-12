@@ -126,6 +126,12 @@ public class ReceptionForm extends javax.swing.JFrame {
             }
         });
 
+        comboDoctor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboDoctorActionPerformed(evt);
+            }
+        });
+
         comboTimeSlot.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "09:00-10:00", "10:00-11:00", "11:00-12:00" }));
 
         btnBook.setText("Book Appointment");
@@ -359,6 +365,10 @@ public class ReceptionForm extends javax.swing.JFrame {
         
         
     }//GEN-LAST:event_backBtnActionPerformed
+
+    private void comboDoctorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboDoctorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_comboDoctorActionPerformed
 // Define your clinic hours here
     private final String[] ALL_SLOTS = {"09:00-10:00", "10:00-11:00", "11:00-12:00", "14:00-15:00", "15:00-16:00"};
 
@@ -430,7 +440,7 @@ public class ReceptionForm extends javax.swing.JFrame {
     private javax.swing.JButton backBtn;
     private javax.swing.JButton btnBook;
     private javax.swing.JComboBox<String> cbGender;
-    private javax.swing.JComboBox<model.Doctor> comboDoctor;
+    private javax.swing.JComboBox<Object> comboDoctor;
     private javax.swing.JComboBox<String> comboTimeSlot;
     private com.toedter.calendar.JDateChooser jDateChooser1;
     private javax.swing.JLabel jLabel1;

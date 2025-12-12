@@ -44,6 +44,11 @@ public class Doctor extends Person implements User{
     public String getRole(){
         return role;
     }
+    // This tells the ComboBox to display the Name instead of the memory address
+    @Override
+    public String toString() {
+        return this.getName(); // Or return this.name if it's accessible
+    }
 
     // ... other existing getters/setters ...
 }
