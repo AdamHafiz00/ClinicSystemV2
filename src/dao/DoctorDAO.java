@@ -57,8 +57,8 @@ public class DoctorDAO {
         ResultSet rs = null;
         String tempLoginId = "TEMP-" + System.currentTimeMillis(); // Temporary unique ID
 
-        String sqlInsert = "INSERT INTO doctors (name, specialization, login_id, password, is_available, age, gender, contact_info) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sqlInsert = "INSERT INTO doctors (name, specialization, login_id, password, is_available, age, gender, contact_info,role) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         String sqlUpdate = "UPDATE doctors SET login_id = ? WHERE doctor_id = ?";
 
@@ -77,6 +77,8 @@ public class DoctorDAO {
                 stmt.setInt(6, doctor.getAge());
                 stmt.setString(7, doctor.getGender());
                 stmt.setString(8, doctor.getContactInfo());
+                stmt.setString(9, "Doctor");
+                
 
                 stmt.executeUpdate();
 

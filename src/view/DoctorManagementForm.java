@@ -105,7 +105,7 @@ public class DoctorManagementForm extends javax.swing.JFrame {
 
         // 3. Validate Login fields ONLY IF adding a new doctor OR explicitly updating credentials (which we'll handle later).
         if (selectedDoctorId == -1) {
-            if (txtLoginId.getText().isEmpty() || new String(txtPassword.getPassword()).isEmpty()) {
+            if ( new String(txtPassword.getPassword()).isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please provide a Login ID and Password for the new Doctor registration.");
                 return false;
             }

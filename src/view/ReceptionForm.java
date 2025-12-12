@@ -106,7 +106,6 @@ public class ReceptionForm extends javax.swing.JFrame {
         txtContact_info = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         jDateChooser1 = new com.toedter.calendar.JDateChooser();
-        TEST1 = new javax.swing.JLabel();
         backBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -156,8 +155,6 @@ public class ReceptionForm extends javax.swing.JFrame {
         jLabel7.setText("Contact Info : ");
 
         jLabel8.setText("Appointment Date : ");
-
-        TEST1.setText("jLabel9");
 
         backBtn.setText("Back");
         backBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -211,8 +208,6 @@ public class ReceptionForm extends javax.swing.JFrame {
                 .addComponent(backBtn)
                 .addGap(82, 82, 82)
                 .addComponent(btnBook)
-                .addGap(77, 77, 77)
-                .addComponent(TEST1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -253,9 +248,7 @@ public class ReceptionForm extends javax.swing.JFrame {
                         .addComponent(btnBook)
                         .addGap(63, 63, 63))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(TEST1)
-                            .addComponent(backBtn))
+                        .addComponent(backBtn)
                         .addGap(52, 52, 52))))
         );
 
@@ -381,7 +374,6 @@ public class ReceptionForm extends javax.swing.JFrame {
             model.Doctor selectedDoc = (model.Doctor) comboDoctor.getSelectedItem();
             String dateText = convertDateChooserToString(jDateChooser1);
             
-            TEST1.setText(dateText);
 
             // 3. Get BUSY slots from DB (Call the Controller!)
             java.util.Set<String> busySlots = controller.getBusySlots(selectedDoc.getId(), dateText);
@@ -436,7 +428,6 @@ public class ReceptionForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel TEST1;
     private javax.swing.JButton backBtn;
     private javax.swing.JButton btnBook;
     private javax.swing.JComboBox<String> cbGender;
