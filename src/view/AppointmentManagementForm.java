@@ -27,6 +27,7 @@ public class AppointmentManagementForm extends javax.swing.JFrame {
      */
     public AppointmentManagementForm() {
         initComponents();
+        this.setLocationRelativeTo(null);
         loadDoctorsIntoFilter();
         populateTimeFilter();// Load doctors for the dropdown
         loadAppointmentTable(-1, null, null); // Load ALL appointments initially

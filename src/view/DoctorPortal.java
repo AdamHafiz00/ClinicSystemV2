@@ -24,6 +24,7 @@ public class DoctorPortal extends javax.swing.JFrame {
      */
     public DoctorPortal(int doctorId) {
         initComponents();
+        this.setLocationRelativeTo(null);
         this.loggedInDoctorId = doctorId; // Store the ID for later use (e.g., updating record)
         refreshTable(); // Now calls the simpler refreshTable without arguments
     }

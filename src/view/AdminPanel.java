@@ -23,6 +23,7 @@ public class AdminPanel extends javax.swing.JFrame {
      */
     public AdminPanel() {
         initComponents();
+        this.setLocationRelativeTo(null);
         updateDashboardStats();
         loadDoctorTable();
     }

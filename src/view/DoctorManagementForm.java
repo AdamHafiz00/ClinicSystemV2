@@ -25,6 +25,7 @@ public class DoctorManagementForm extends javax.swing.JFrame {
      */
     public DoctorManagementForm() {
         initComponents();
+        this.setLocationRelativeTo(null);
         txtLoginId.setEditable(false); // <--- Add this line!
         txtLoginId.setText("Auto-Generated"); // Placeholder text
         loadDoctorTable();

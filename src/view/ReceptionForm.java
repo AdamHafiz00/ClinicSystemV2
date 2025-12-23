@@ -12,6 +12,8 @@ import com.toedter.calendar.JDateChooser;
 import controller.ReceptionistController;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import exception.InvalidPatientDataException; //impoort the custom exception handler
+import javax.swing.JOptionPane;
 
 public class ReceptionForm extends javax.swing.JFrame {
 
@@ -22,34 +24,36 @@ public class ReceptionForm extends javax.swing.JFrame {
      */
     public ReceptionForm() {
         initComponents();
+        this.setLocationRelativeTo(null);
         loadDoctors();
         setupListeners();
+        jDateChooser1.setMinSelectableDate(new java.util.Date());
     }
-    
-    private void setupListeners() {
-    // 1. Listener for Doctor Dropdown Change
-    comboDoctor.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            // Call the method every time a different doctor is selected
-            updateAvailableSlots(); 
-        }
-    });
 
-    // 2. Listener for Date Chooser Change
-    // We listen for the "date" property change, which fires when the user picks a date.
-    jDateChooser1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-        public void propertyChange(java.beans.PropertyChangeEvent evt) {
-            if ("date".equals(evt.getPropertyName())) {
-                // Call the method every time the date value changes
+    private void setupListeners() {
+        // 1. Listener for Doctor Dropdown Change
+        comboDoctor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                // Call the method every time a different doctor is selected
                 updateAvailableSlots();
             }
-        }
-    });
-    
-    // Initial call to load slots when the form first opens
-    // (This is important in case the initial doctor/date selection is valid)
-    updateAvailableSlots(); 
-}
+        });
+
+        // 2. Listener for Date Chooser Change
+        // We listen for the "date" property change, which fires when the user picks a date.
+        jDateChooser1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                if ("date".equals(evt.getPropertyName())) {
+                    // Call the method every time the date value changes
+                    updateAvailableSlots();
+                }
+            }
+        });
+
+        // Initial call to load slots when the form first opens
+        // (This is important in case the initial doctor/date selection is valid)
+        updateAvailableSlots();
+    }
 
     // Helper method to fill the dropdown
     private void loadDoctors() {
@@ -61,24 +65,85 @@ public class ReceptionForm extends javax.swing.JFrame {
             comboDoctor.addItem(d);
         }
     }
-    
+
     public String convertDateChooserToString(com.toedter.calendar.JDateChooser dateChooser) {
-    // 1. Get the Date object
-    Date date = dateChooser.getDate(); 
+        // 1. Get the Date object
+        Date date = dateChooser.getDate();
 
-    // 2. Check for null before formatting (as previously discussed)
-    if (date == null) {
-        // You can return null or an empty string, depending on your database needs.
-        // Returning null is safer if the database column allows nulls.
-        return null; 
+        // 2. Check for null before formatting (as previously discussed)
+        if (date == null) {
+            // You can return null or an empty string, depending on your database needs.
+            // Returning null is safer if the database column allows nulls.
+            return null;
+        }
+
+        // 3. Define the desired format (YYYY-MM-DD is standard for SQL)
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        // 4. Format and return the string
+        return formatter.format(date);
     }
+        // Call Custom Exception Handler to validate Input
+    private void validateInputs() throws InvalidPatientDataException {
+        // 1. Check for Empty Fields
+        if (txtICNumber.getText().trim().isEmpty()) {
+            throw new InvalidPatientDataException("IC Number is required.");
+        }
+        if (txtName.getText().trim().isEmpty()) {
+            throw new InvalidPatientDataException("Patient Name cannot be empty.");
+        }
+        if (txtAge.getText().trim().isEmpty()) {
+            throw new InvalidPatientDataException("Age is required.");
+        }
+        if (txtContact_info.getText().trim().isEmpty()) {
+            throw new InvalidPatientDataException("Contact Info is required.");
+        }
 
-    // 3. Define the desired format (YYYY-MM-DD is standard for SQL)
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        // 2. Check Date Selection
+        if (jDateChooser1.getDate() == null) {
+            throw new InvalidPatientDataException("Please select an Appointment Date.");
+        }
 
-    // 4. Format and return the string
-    return formatter.format(date);
-}
+        // 3. Check Doctor Selection
+        if (comboDoctor.getSelectedItem() == null) {
+            throw new InvalidPatientDataException("Please select a Doctor.");
+        }
+
+        // 4. Check IC Format (Must be 12 digits)
+        String ic = txtICNumber.getText().trim();
+        if (!ic.matches("\\d{12}")) {
+            throw new InvalidPatientDataException("IC Number must be exactly 12 digits (e.g., 990101105566).");
+        }
+
+        // 5. Check Age Validity
+        try {
+            int age = Integer.parseInt(txtAge.getText().trim());
+            if (age <= 0 || age > 120) {
+                throw new InvalidPatientDataException("Age must be between 1 and 120.");
+            }
+        } catch (NumberFormatException e) {
+            throw new InvalidPatientDataException("Age must be a valid number.");
+        }
+        // 1. Get the selected date
+        Date selectedDate = jDateChooser1.getDate();
+        if (selectedDate == null) {
+            throw new InvalidPatientDataException("Please select an Appointment Date.");
+        }
+
+        // 2. Get 'Today' but reset time to 00:00:00 (Midnight)
+        // This ensures that if the user picks 'Today', it is NOT counted as 'Past'.
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        cal.set(java.util.Calendar.MINUTE, 0);
+        cal.set(java.util.Calendar.SECOND, 0);
+        cal.set(java.util.Calendar.MILLISECOND, 0);
+        Date todayZeroTime = cal.getTime();
+
+        // 3. Compare: If selected date is BEFORE today (00:00:00), throw error
+        if (selectedDate.before(todayZeroTime)) {
+            throw new InvalidPatientDataException("Invalid Date. You cannot book an appointment in the past.");
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -107,6 +172,7 @@ public class ReceptionForm extends javax.swing.JFrame {
         jLabel8 = new javax.swing.JLabel();
         jDateChooser1 = new com.toedter.calendar.JDateChooser();
         backBtn = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -163,34 +229,27 @@ public class ReceptionForm extends javax.swing.JFrame {
             }
         });
 
+        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/CPMS logo (resized).jpg"))); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(39, 39, 39)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel5)
-                    .addComponent(jLabel7)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel8)
-                    .addComponent(jLabel4))
+                .addGap(43, 43, 43)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(9, 20, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(comboTimeSlot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(313, 313, 313))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(comboDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(62, 62, 62))))
+                        .addComponent(backBtn)
+                        .addGap(134, 134, 134)
+                        .addComponent(btnBook))
                     .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel7)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel8)
+                            .addComponent(jLabel4))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtICNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -201,19 +260,24 @@ public class ReceptionForm extends javax.swing.JFrame {
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 227, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(19, 19, 19)
-                .addComponent(backBtn)
-                .addGap(82, 82, 82)
-                .addComponent(btnBook)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(37, 37, 37)
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(comboDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(comboTimeSlot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel9)
+                                .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 227, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(117, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
+                .addContainerGap(10, Short.MAX_VALUE)
+                .addComponent(jLabel9)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtICNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5))
@@ -231,25 +295,22 @@ public class ReceptionForm extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
                     .addComponent(txtContact_info, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel8)
+                    .addComponent(jLabel8)
+                    .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel3)
-                        .addComponent(comboDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jDateChooser1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(comboDoctor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(comboTimeSlot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnBook)
-                        .addGap(63, 63, 63))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(backBtn)
-                        .addGap(52, 52, 52))))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnBook)
+                    .addComponent(backBtn))
+                .addGap(100, 100, 100))
         );
 
         pack();
@@ -260,68 +321,74 @@ public class ReceptionForm extends javax.swing.JFrame {
     }//GEN-LAST:event_txtNameActionPerformed
 
     private void btnBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBookActionPerformed
-       try {
-        // 1. Get Data from Form (The View's job)
-        String name = txtName.getText();
-        String age = txtAge.getText();
-        String gender = cbGender.getSelectedItem().toString();
-        String contact_info = txtContact_info.getText();
-        String icNumber = txtICNumber.getText().trim();
- 
-        // Get the date string:
-        String appointmentDate = convertDateChooserToString(jDateChooser1);
+        try {
+            // 1. RUN CUSTOM VALIDATION FIRST
+            validateInputs();
 
-        if (name.isEmpty() || age.isEmpty() || contact_info.isEmpty() || icNumber.isEmpty() || appointmentDate == null) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Please fill all fields!");
-            return;
+            // 2. Only if validation passes, retrieve the data
+            String name = txtName.getText().trim();
+            String ageStr = txtAge.getText().trim();
+            String gender = cbGender.getSelectedItem().toString();
+            String contact_info = txtContact_info.getText().trim();
+            String icNumber = txtICNumber.getText().trim();
+
+            // Get date and slot
+            String appointmentDate = convertDateChooserToString(jDateChooser1);
+            int parsed_age = Integer.parseInt(ageStr); // Safe because validateInputs checked it
+            model.Doctor selectedDoc = (model.Doctor) comboDoctor.getSelectedItem();
+
+            // Safety check for time slot (incase validation passed but slot combo is empty)
+            if (comboTimeSlot.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(this, "No time slots available for this doctor on this date.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            String timeSlot = comboTimeSlot.getSelectedItem().toString();
+
+            // 3. Pass data to Controller
+            boolean success = controller.bookAppointment(
+                    icNumber,
+                    name,
+                    parsed_age,
+                    gender,
+                    contact_info,
+                    "Checkup",
+                    selectedDoc,
+                    appointmentDate,
+                    timeSlot
+            );
+
+            // 4. Handle Success
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Success! Appointment Booked.");
+
+                // Clear fields for next patient
+                txtName.setText("");
+                txtAge.setText("");
+                txtICNumber.setText("");
+                txtContact_info.setText("");
+
+                // Reset fields to enabled (in case they were locked by auto-fill)
+                txtName.setEnabled(true);
+                txtAge.setEnabled(true);
+                txtContact_info.setEnabled(true);
+                cbGender.setEnabled(true);
+
+                // Refresh slots
+                updateAvailableSlots();
+
+            } else {
+                JOptionPane.showMessageDialog(this, "Error saving appointment. Check if IC is unique or Database connection.", "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (InvalidPatientDataException ex) {
+            // 5. CATCH CUSTOM VALIDATION ERRORS HERE
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Validation Error", JOptionPane.WARNING_MESSAGE);
+
+        } catch (Exception e) {
+            // 6. Catch unexpected errors
+            JOptionPane.showMessageDialog(this, "A general error occurred: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
-        int parsed_age = Integer.parseInt(age);
-
-        model.Doctor selectedDoc = (model.Doctor) comboDoctor.getSelectedItem();
-        String timeSlot = comboTimeSlot.getSelectedItem().toString();
-
-        if (selectedDoc == null) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Please select a Doctor.");
-            return;
-        }
-
-        // 2. Pass all data to the Controller (The Controller's job)
-        boolean success = controller.bookAppointment(
-            icNumber, 
-            name, 
-            parsed_age, 
-            gender, 
-            contact_info, 
-            "Checkup", // Assuming a default diagnosis for quick booking
-            selectedDoc, 
-            appointmentDate, 
-            timeSlot
-        );
-
-        // 3. Handle the result (The View's job)
-        if (success) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Success! Appointment Booked.");
-
-            // Clear fields
-            txtName.setText("");
-            txtAge.setText("");
-            txtICNumber.setText("");
-            txtContact_info.setText("");
-            txtName.setEnabled(true);
-            txtAge.setEnabled(true);
-            txtContact_info.setEnabled(true);
-            cbGender.setEnabled(true);
-
-        } else {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error saving patient/appointment. Check IC uniqueness or DB connection.");
-        }
-
-    } catch (NumberFormatException e) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Age must be a valid number.");
-    } catch (Exception e) {
-        javax.swing.JOptionPane.showMessageDialog(this, "A general error occurred: " + e.getMessage());
-        e.printStackTrace();
-    }
     }//GEN-LAST:event_btnBookActionPerformed
 
     private void txtICNumberFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtICNumberFocusLost
@@ -355,8 +422,8 @@ public class ReceptionForm extends javax.swing.JFrame {
     private void backBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtnActionPerformed
         new MainMenu().setVisible(true);
         dispose();
-        
-        
+
+
     }//GEN-LAST:event_backBtnActionPerformed
 
     private void comboDoctorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboDoctorActionPerformed
@@ -373,7 +440,6 @@ public class ReceptionForm extends javax.swing.JFrame {
 
             model.Doctor selectedDoc = (model.Doctor) comboDoctor.getSelectedItem();
             String dateText = convertDateChooserToString(jDateChooser1);
-            
 
             // 3. Get BUSY slots from DB (Call the Controller!)
             java.util.Set<String> busySlots = controller.getBusySlots(selectedDoc.getId(), dateText);
@@ -442,6 +508,7 @@ public class ReceptionForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JTextField txtAge;
     private javax.swing.JTextField txtContact_info;
     private javax.swing.JTextField txtICNumber;
