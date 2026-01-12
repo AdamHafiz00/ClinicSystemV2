@@ -203,14 +203,15 @@ public class AppointmentDAO {
         java.util.List<java.util.Map<String, Object>> appointmentList = new java.util.ArrayList<>();
 
         // Query to get Appointment ID, Patient Name/Age, Diagnosis, and Status
-        String sql = "SELECT a.appointment_id, p.name AS patient_name, p.age AS patient_age, "
-                + "a.diagnosis, a.status "
-                + "FROM appointments a "
-                + "JOIN patients p ON a.patient_id = p.patient_id "
-                + "WHERE a.doctor_id = ? "
-                + "AND a.appointment_date >= DATE(NOW()) " // Filter for today
-                + "AND a.status = 'waiting' " // Filter for active statuses
-                + "ORDER BY a.time_slot ASC";
+// Query to get Appointment ID, Patient Name/Age, Diagnosis, and Status
+            String sql = "SELECT a.appointment_id, p.name AS patient_name, p.age AS patient_age, a.appointment_date AS date, "
+                       + "a.diagnosis, a.status " 
+                       + "FROM appointments a "   
+                       + "JOIN patients p ON a.patient_id = p.patient_id "
+                       + "WHERE a.doctor_id = ? "
+                       + "AND a.appointment_date >= DATE(NOW()) " // Filter for today
+                       + "AND a.status = 'waiting' " // Filter for active statuses
+                       + "ORDER BY a.time_slot ASC";
 
         try (java.sql.Connection conn = database.DatabaseConnection.getInstance().getConnection(); java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -225,7 +226,7 @@ public class AppointmentDAO {
                     row.put("patient_age", rs.getInt("patient_age"));
                     row.put("diagnosis", rs.getString("diagnosis"));
                     row.put("status", rs.getString("status"));
-                    row.put("date", rs.getString("appointment_date"));
+                    row.put("date", rs.getString("date"));
                     appointmentList.add(row);
                 }
             }
