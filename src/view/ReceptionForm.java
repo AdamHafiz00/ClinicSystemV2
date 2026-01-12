@@ -400,13 +400,15 @@ public class ReceptionForm extends javax.swing.JFrame {
         model.Patient p = dao.getPatientByIC(ic); // Call Phase 2 method
 
         if (p != null) {
+            if (!txtName.getText().equals(p.getName())) {
+             
             // Found! Auto-fill fields
             javax.swing.JOptionPane.showMessageDialog(this, "Patient Found: " + p.getName());
             txtName.setText(p.getName());
             txtAge.setText(String.valueOf(p.getAge()));
             cbGender.setSelectedItem(p.getGender());
             txtContact_info.setText(p.getContactInfo());
-
+            }
             // Lock fields so staff don't accidentally change them
             txtName.setEnabled(false);
             txtAge.setEnabled(false);

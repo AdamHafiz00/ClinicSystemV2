@@ -55,8 +55,11 @@ public class DoctorPortal extends javax.swing.JFrame {
                 appointment.get("appointment_id"),
                 appointment.get("patient_name"),
                 appointment.get("patient_age"),
-                appointment.get("diagnosis"),
-                appointment.get("status")
+                appointment.get("status"),
+                appointment.get("date"),
+                
+                    
+                    
             });
         }
 
@@ -97,10 +100,14 @@ public class DoctorPortal extends javax.swing.JFrame {
                 {null, null, null, null, null}
             },
             new String [] {
-                "ID", "Name", "Age", "Diagnosis", "Status"
+                "ID", "Name", "Age", "Status", "date"
             }
         ));
         jScrollPane1.setViewportView(tblPatients);
+        if (tblPatients.getColumnModel().getColumnCount() > 0) {
+            tblPatients.getColumnModel().getColumn(4).setPreferredWidth(200);
+            tblPatients.getColumnModel().getColumn(4).setMaxWidth(300);
+        }
 
         jLabel2.setText("Doctor's Notes / Diagnosis:");
 
@@ -137,13 +144,17 @@ public class DoctorPortal extends javax.swing.JFrame {
                 .addGap(48, 48, 48)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(195, Short.MAX_VALUE))
+                    .addComponent(jLabel2))
+                .addContainerGap(243, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnUpdate)
-                .addGap(179, 179, 179))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(btnUpdate)
+                        .addGap(179, 179, 179))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(36, 36, 36))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

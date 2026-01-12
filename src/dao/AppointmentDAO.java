@@ -208,7 +208,7 @@ public class AppointmentDAO {
                 + "FROM appointments a "
                 + "JOIN patients p ON a.patient_id = p.patient_id "
                 + "WHERE a.doctor_id = ? "
-                + "AND a.appointment_date = DATE(NOW()) " // Filter for today
+                + "AND a.appointment_date >= DATE(NOW()) " // Filter for today
                 + "AND a.status = 'waiting' " // Filter for active statuses
                 + "ORDER BY a.time_slot ASC";
 
@@ -225,6 +225,7 @@ public class AppointmentDAO {
                     row.put("patient_age", rs.getInt("patient_age"));
                     row.put("diagnosis", rs.getString("diagnosis"));
                     row.put("status", rs.getString("status"));
+                    row.put("date", rs.getString("appointment_date"));
                     appointmentList.add(row);
                 }
             }
@@ -236,12 +237,16 @@ public class AppointmentDAO {
         java.util.List<java.util.Map<String, Object>> appointmentList = new java.util.ArrayList<>();
 
         // Query to get Appointment ID, Patient Name, Diagnosis, and Status
-        String sql = "SELECT a.appointment_id, p.name AS patient_name, a.diagnosis, a.status "
-                + "FROM appointments a "
-                + "JOIN patients p ON a.patient_id = p.patient_id "
-                + "WHERE a.status IN ( 'in-treatment','waiting' )"
-                + "AND a.appointment_date = DATE(NOW()) "
-                + "ORDER BY a.appointment_date, a.time_slot";
+        String sql = "SELECT a.appointment_id, "
+                   + "p.name AS patient_name, "
+                   + "d.name AS doctor_name, "       
+                   + "a.diagnosis, a.status, a.appointment_date "
+                   + "FROM appointments a "
+                   + "JOIN patients p ON a.patient_id = p.patient_id "
+                   + "JOIN doctors d ON a.doctor_id = d.doctor_id " 
+                   + "WHERE a.status IN ( 'in-treatment','waiting' ) "
+                   + "AND a.appointment_date >= DATE(NOW()) "
+                   + "ORDER BY a.appointment_date, a.time_slot";
 
         try (java.sql.Connection conn = database.DatabaseConnection.getInstance().getConnection(); java.sql.PreparedStatement stmt = conn.prepareStatement(sql); java.sql.ResultSet rs = stmt.executeQuery()) {
 
@@ -251,6 +256,10 @@ public class AppointmentDAO {
                 row.put("patient_name", rs.getString("patient_name"));
                 row.put("diagnosis", rs.getString("diagnosis"));
                 row.put("status", rs.getString("status"));
+                row.put("date", rs.getString("appointment_date"));
+                row.put("doctor", rs.getString("doctor_name"));
+                
+                
                 appointmentList.add(row);
             }
         }

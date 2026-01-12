@@ -32,7 +32,7 @@ public class AdminPanel extends javax.swing.JFrame {
         // 1. Define Table Model structure for Appointments
         DefaultTableModel model = new DefaultTableModel();
         // We are now showing Appointment data, not Doctor data
-        model.setColumnIdentifiers(new Object[]{"Appointment ID", "Patient Name", "Diagnosis", "Status"});
+        model.setColumnIdentifiers(new Object[]{"Appointment ID", "Patient Name", "Diagnosis", "Status", "Date", "Doctor"});
 
         try {
             // 2. Fetch data from the controller for 'in-treatment' appointments
@@ -44,7 +44,10 @@ public class AdminPanel extends javax.swing.JFrame {
                     appointment.get("appointment_id"),
                     appointment.get("patient_name"),
                     appointment.get("diagnosis"),
-                    appointment.get("status")
+                    appointment.get("status"),
+                    appointment.get("date"),
+                    appointment.get("doctor")
+                        
                 });
             }
 
@@ -118,13 +121,13 @@ public class AdminPanel extends javax.swing.JFrame {
 
         tblDoctors.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "IDAppointment ID", "Patient Name", "Diagnosis", "Status"
+                "IDAppointment ID", "Patient Name", "Diagnosis", "Status", "Date"
             }
         ));
         jScrollPane2.setViewportView(tblDoctors);

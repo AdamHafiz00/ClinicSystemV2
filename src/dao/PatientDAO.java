@@ -144,7 +144,7 @@ public class PatientDAO {
 
         // SQL query to count appointments for TODAY with the given status
         String sql = "SELECT COUNT(*) FROM appointments "
-                + "WHERE appointment_date = DATE(NOW()) AND status = ?";
+                + "WHERE appointment_date >= DATE(NOW()) AND status = ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection(); 
              PreparedStatement stmt = conn.prepareStatement(sql)) {
